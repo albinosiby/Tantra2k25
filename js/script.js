@@ -1,134 +1,546 @@
-// script.js
-// Enhanced events data for TANTRA
-const events = [
-    {
-        id: 1,
-        name: "Code Wars",
-        department: "Computer Science",
-        category: "technical",
-        description: "A competitive programming challenge where participants solve complex algorithmic problems under time constraints. Show your coding prowess!",
-        date: "2024-10-15",
-        time: "10:00 AM",
-        venue: "CS Lab, Block A",
-        coordinator: "Dr. Smith",
-        coordinatorPhone: "+1 234 567 8901",
-        price: 50,
-        image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
-        participants: 120,
-        duration: "3 hours"
-    },
-    {
-        id: 2,
-        name: "Robo Soccer",
-        department: "Robotics",
-        category: "robotics",
-        description: "Build and program autonomous robots to compete in a mini soccer tournament. Show off your robotics skills and team strategy!",
-        date: "2024-10-16",
-        time: "2:00 PM",
-        venue: "Main Auditorium",
-        coordinator: "Prof. Johnson",
-        coordinatorPhone: "+1 234 567 8902",
-        price: 100,
-        image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
-        participants: 80,
-        duration: "4 hours"
-    },
-    {
-        id: 3,
-        name: "AI Hackathon",
-        department: "Artificial Intelligence",
-        category: "ai",
-        description: "24-hour hackathon focused on developing innovative AI solutions for real-world problems. Innovate and create the future!",
-        date: "2024-10-17",
-        time: "9:00 AM",
-        venue: "AI Research Center",
-        coordinator: "Dr. Williams",
-        coordinatorPhone: "+1 234 567 8903",
-        price: 0,
-        image: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
-        participants: 200,
-        duration: "24 hours"
-    },
-    {
-        id: 4,
-        name: "Circuit Design Challenge",
-        department: "Electronics",
-        category: "technical",
-        description: "Design and build electronic circuits to solve specific challenges. Test your electronics knowledge and innovation!",
-        date: "2024-10-18",
-        time: "11:00 AM",
-        venue: "Electronics Lab, Block B",
-        coordinator: "Prof. Brown",
-        coordinatorPhone: "+1 234 567 8904",
-        price: 30,
-        image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
-        participants: 60,
-        duration: "2 hours"
-    },
-    {
-        id: 5,
-        name: "Machine Learning Workshop",
-        department: "AI/ML",
-        category: "workshop",
-        description: "Hands-on workshop covering fundamental ML concepts and practical implementation. Perfect for beginners and enthusiasts!",
-        date: "2024-10-16",
-        time: "10:00 AM",
-        venue: "Tech Hub, Block C",
-        coordinator: "Dr. Davis",
-        coordinatorPhone: "+1 234 567 8905",
-        price: 0,
-        image: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
-        participants: 150,
-        duration: "6 hours"
-    },
-    {
-        id: 6,
-        name: "Drone Racing",
-        department: "Aeronautics",
-        category: "robotics",
-        description: "High-speed drone racing competition through obstacle courses. Test your piloting skills and reaction time!",
-        date: "2024-10-17",
-        time: "3:00 PM",
-        venue: "Sports Ground",
-        coordinator: "Prof. Miller",
-        coordinatorPhone: "+1 234 567 8906",
-        price: 75,
-        image: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
-        participants: 40,
-        duration: "3 hours"
+// Global variables
+let events = [];
+let departments = [];
+let festivalInfo = {};
+let currentDepartment = 'all';
+
+// TANTRA Text Animation - Automatically plays on load
+function initTantraAnimation() {
+    const text = document.querySelector('.tantra-text');
+    
+    // Split text into letters for individual animation
+    const textContent = text.textContent;
+    text.innerHTML = '';
+    
+    const letters = [];
+    for (let i = 0; i < textContent.length; i++) {
+        const span = document.createElement('span');
+        span.textContent = textContent[i];
+        span.style.display = 'inline-block';
+        span.style.opacity = '0';
+        span.style.transform = 'translateY(100px) rotateX(90deg) scale(0.5)';
+        text.appendChild(span);
+        letters.push(span);
     }
-];
 
-// DOM Elements
-const eventsContainer = document.getElementById('events-container');
-const filterTabs = document.querySelectorAll('.filter-tab');
-const registrationModal = document.getElementById('registration-modal');
-const registrationForm = document.getElementById('registration-form');
-const eventNameInput = document.getElementById('event-name');
-const closeModal = document.querySelector('.close-modal');
-const navToggle = document.querySelector('.nav-toggle');
-const navMenu = document.querySelector('.nav-menu');
+    // Master timeline for automatic animation
+    const masterTL = gsap.timeline();
 
-// Initialize the application
-function init() {
-    renderEvents();
-    setupEventListeners();
-    setupSmoothScrolling();
-}
+    // 1. Dramatic entrance animation
+    masterTL.to(letters, {
+        opacity: 1,
+        y: 0,
+        rotationX: 0,
+        scale: 1,
+        duration: 1.5,
+        stagger: 0.15,
+        ease: "back.out(2)"
+    })
 
-// Render events based on current filter
-function renderEvents(filter = 'all') {
-    eventsContainer.innerHTML = '';
-    
-    const filteredEvents = filter === 'all' 
-        ? events 
-        : events.filter(event => event.category === filter);
-    
-    filteredEvents.forEach(event => {
-        const eventCard = createEventCard(event);
-        eventsContainer.appendChild(eventCard);
+    // 2. Add glow effect after entrance
+    .to(text, {
+        textShadow: "0 0 40px rgba(0, 245, 255, 0.8), 0 0 80px rgba(157, 78, 221, 0.6), 0 0 120px rgba(255, 46, 146, 0.4)",
+        duration: 1,
+        ease: "power2.out"
+    }, "-=0.5")
+
+    // 3. Continuous animations that loop forever
+    .add(() => {
+        // Breathing scale
+        gsap.to(text, {
+            scale: 1.08,
+            duration: 3,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut"
+        });
+
+        // Floating motion
+        gsap.to(text, {
+            y: -15,
+            duration: 4,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut"
+        });
+
+        // Horizontal sway
+        gsap.to(text, {
+            x: 10,
+            duration: 5,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut"
+        });
+
+        // Master rotation
+        gsap.to(text, {
+            rotation: 2,
+            duration: 8,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut"
+        });
+
+        // Individual letter animations
+        letters.forEach((letter, index) => {
+            // Rotation
+            gsap.to(letter, {
+                rotation: Math.random() * 8 - 4,
+                duration: 3 + Math.random() * 2,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut",
+                delay: index * 0.2
+            });
+
+            // Scale
+            gsap.to(letter, {
+                scale: 1.1,
+                duration: 2 + Math.random() * 2,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut",
+                delay: index * 0.3
+            });
+        });
+
+        // Opacity pulse
+        gsap.to(text, {
+            opacity: 0.9,
+            duration: 2,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut"
+        });
+    });
+
+    // Interactive features
+    text.addEventListener('mouseenter', () => {
+        gsap.to(text, {
+            scale: 1.3,
+            duration: 0.4,
+            ease: "back.out(2)"
+        });
+        
+        // Individual letter jump
+        letters.forEach((letter, index) => {
+            gsap.to(letter, {
+                y: -30,
+                rotation: Math.random() * 20 - 10,
+                duration: 0.6,
+                ease: "back.out(2)",
+                delay: index * 0.08
+            });
+        });
+    });
+
+    text.addEventListener('mouseleave', () => {
+        gsap.to(text, {
+            scale: 1,
+            duration: 0.4,
+            ease: "back.out(2)"
+        });
+        
+        // Return letters to position
+        letters.forEach((letter, index) => {
+            gsap.to(letter, {
+                y: 0,
+                rotation: 0,
+                duration: 0.6,
+                ease: "back.out(2)",
+                delay: index * 0.08
+            });
+        });
+    });
+
+    // Click to replay entrance
+    text.addEventListener('click', () => {
+        // Hide all letters quickly
+        gsap.to(letters, {
+            opacity: 0,
+            y: 50,
+            rotationX: 90,
+            scale: 0.5,
+            duration: 0.3,
+            stagger: 0.05,
+            ease: "power2.in"
+        });
+
+        // Reveal letters with delay
+        setTimeout(() => {
+            gsap.to(letters, {
+                opacity: 1,
+                y: 0,
+                rotationX: 0,
+                scale: 1,
+                duration: 1,
+                stagger: 0.1,
+                ease: "back.out(2)"
+            });
+        }, 400);
     });
 }
+
+// Load data from JSON file
+async function loadData() {
+    try {
+        const response = await fetch('data/data.json');
+        if (!response.ok) {
+            throw new Error('Failed to load data');
+        }
+        const data = await response.json();
+        
+        events = data.events;
+        departments = data.departments;
+        festivalInfo = data.festivalInfo;
+        
+        // Update page content with loaded data
+        updatePageContent();
+        
+        return data;
+    } catch (error) {
+        console.error('Error loading data:', error);
+        departments = getDefaultDepartments();
+        festivalInfo = getDefaultFestivalInfo();
+        updatePageContent();
+    }
+}
+
+// Default data in case JSON fails to load
+function getDefaultEvents() {
+    return [
+        {
+            id: 1,
+            name: "Code Wars",
+            department: "computer-science",
+            category: "technical",
+            description: "A competitive programming challenge where participants solve complex algorithmic problems under time constraints.",
+            date: "2024-10-15",
+            time: "10:00 AM",
+            venue: "CS Lab, Block A",
+            coordinator: "Dr. Smith",
+            coordinatorPhone: "+1 234 567 8901",
+            price: 50,
+            image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
+            participants: 120,
+            duration: "3 hours"
+        }
+    ];
+}
+
+// Update the getDefaultDepartments function to ensure all departments are included:
+function getDefaultDepartments() {
+    return [
+        {
+            id: "applied-electronics-instrumentation",
+            name: "Applied Electronics & Instrumentation Engineering",
+            icon: "fas fa-microchip",
+            description: "Sensors, instrumentation, embedded systems, and control technologies",
+            color: "#ff6f00"
+        },
+        {
+            id: "civil-engineering", 
+            name: "Civil Engineering",
+            icon: "fas fa-building",
+            description: "Structural design, surveying, geotechnical, and construction engineering projects",
+            color: "#8d99ae"
+        },
+        {
+            id: "cse-cyber-security",
+            name: "Computer Science and Engineering (Cyber Security)",
+            icon: "fas fa-shield-alt",
+            description: "Network defense, ethical hacking, cryptography, and cyber forensics challenges",
+            color: "#ff0054"
+        },
+        {
+            id: "computer-science-design",
+            name: "Computer Science & Design", 
+            icon: "fas fa-paint-brush",
+            description: "UI/UX, design thinking, creative computing, and human–computer interaction",
+            color: "#ff9e00"
+        },
+        {
+            id: "electrical-electronics",
+            name: "Electrical & Electronics Engineering",
+            icon: "fas fa-bolt",
+            description: "Power systems, circuits, renewable energy, and electrical automation", 
+            color: "#ffd60a"
+        },
+        {
+            id: "ai-data-science",
+            name: "Artificial Intelligence and Data Science",
+            icon: "fas fa-brain", 
+            description: "Machine learning, neural networks, data analytics, and AI-driven innovations",
+            color: "#00b4d8"
+        },
+        {
+            id: "cse-business-systems", 
+            name: "Computer Science and Engineering (Business Systems)",
+            icon: "fas fa-briefcase",
+            description: "Technology management, data-driven decision making, and business analytics",
+            color: "#6a4c93"
+        },
+        {
+            id: "computer-science-engineering",
+            name: "Computer Science and Engineering",
+            icon: "fas fa-laptop-code",
+            description: "Software development, data structures, algorithms, and computing systems",
+            color: "#00f5ff"
+        },
+        {
+            id: "electronics-communication",
+            name: "Electronics & Communication Engineering", 
+            icon: "fas fa-satellite-dish",
+            description: "Analog and digital communication, VLSI, signal processing, and IoT systems",
+            color: "#00b8a9"
+        },
+        {
+            id: "mechanical-engineering",
+            name: "Mechanical Engineering",
+            icon: "fas fa-cogs",
+            description: "Thermodynamics, design, manufacturing, and mechanical innovation projects",
+            color: "#e63946"
+        }
+    ];
+}
+function getDefaultFestivalInfo() {
+    return {
+        name: "TANTRA 2024",
+        dates: "October 15-18, 2024",
+        tagline: "The ultimate battleground for tech innovators, creators, and visionaries",
+        stats: {
+            events: "50+",
+            participants: "500+",
+            prizePool: "₹50k+"
+        }
+    };
+}
+
+// Update page content with loaded data
+function updatePageContent() {
+    // Update hero section
+    const heroBadge = document.querySelector('.hero-badge span');
+    const heroSubtitle = document.querySelector('.hero-subtitle');
+
+    if (heroBadge) heroBadge.textContent = `⚡ ${festivalInfo.dates}`;
+    if (heroSubtitle) heroSubtitle.textContent = festivalInfo.tagline;
+    
+    // Check if we're on main page or events page
+    const isEventsPage = window.location.pathname.includes('events.html');
+    
+    if (isEventsPage) {
+        // Events page - render department tabs and events
+        renderDepartmentTabs();
+        renderEvents();
+    } else {
+        // Main page - render featured events and departments
+        renderFeaturedEvents();
+        renderDepartments();
+    }
+}
+
+// Render featured events on main page
+function renderFeaturedEvents() {
+    const featuredContainer = document.getElementById('featured-events-container');
+    if (!featuredContainer) return;
+    
+    // Get 3 featured events (prioritize events with high participants)
+    let featuredEvents = [...events]
+        .sort((a, b) => b.participants - a.participants)
+        .slice(0, 3);
+    
+    // If not enough events, just take what's available
+    if (featuredEvents.length === 0) {
+        featuredEvents = events.slice(0, Math.min(3, events.length));
+    }
+    
+    if (featuredEvents.length === 0) {
+        featuredContainer.innerHTML = `
+            <div class="no-events">
+                <i class="fas fa-calendar-times"></i>
+                <h3>No featured events available</h3>
+                <p>Check back later for exciting events</p>
+            </div>
+        `;
+        return;
+    }
+    
+    featuredContainer.innerHTML = featuredEvents.map(event => {
+        const department = departments.find(dept => dept.id === event.department);
+        const priceText = event.price === 0 ? 'FREE' : `₹${event.price}`;
+        
+        return `
+            <div class="featured-card" onclick="openRegistrationModal(${event.id})" style="cursor: pointer;">
+                <div class="featured-badge">
+                    <i class="fas fa-star"></i> FEATURED
+                </div>
+                <h4>${event.name}</h4>
+                <p>${event.description}</p>
+                <div class="featured-stats">
+                    <div class="featured-stat">
+                        <i class="fas fa-users"></i>
+                        <span>${event.participants}+ participants</span>
+                    </div>
+                    <div class="featured-stat">
+                        <i class="fas fa-calendar"></i>
+                        <span>${formatDate(event.date)}</span>
+                    </div>
+                    <div class="featured-price">${priceText}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Render departments on main page
+// In the renderDepartments function, update the department card links:
+function renderDepartments() {
+    const departmentsContainer = document.getElementById('departments-container');
+    if (!departmentsContainer) return;
+    
+    departmentsContainer.innerHTML = departments.map(dept => {
+        const departmentEvents = events.filter(event => event.department === dept.id);
+        
+        return `
+            <a href="events.html?department=${dept.id}" class="department-card" data-department="${dept.id}">
+                <div class="department-icon" style="color: ${dept.color}">
+                    <i class="${dept.icon}"></i>
+                </div>
+                <h3>${dept.name}</h3>
+                <p>${dept.description}</p>
+                <div class="department-stats">
+                    <span class="event-count">${departmentEvents.length} Events</span>
+                </div>
+            </a>
+        `;
+    }).join('');
+}
+// Countdown Timer for October 24, 2024
+function initCountdownTimer() {
+    const eventDate = new Date('October 24, 2025 9:00:00').getTime();
+    
+    function updateCountdown() {
+        const now = new Date().getTime();
+        const distance = eventDate - now;
+        
+        // If event date has passed
+        if (distance < 0) {
+            document.querySelector('.countdown-container').innerHTML = `
+                <div class="event-started">
+                    <h3>🎉 Event Started!</h3>
+                    <p>TANTRA 2024 is now live!</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Time calculations
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        
+        // Update display
+        const daysElement = document.getElementById('days');
+        const hoursElement = document.getElementById('hours');
+        const minutesElement = document.getElementById('minutes');
+        const secondsElement = document.getElementById('seconds');
+        
+        if (daysElement) daysElement.textContent = days.toString().padStart(2, '0');
+        if (hoursElement) hoursElement.textContent = hours.toString().padStart(2, '0');
+        if (minutesElement) minutesElement.textContent = minutes.toString().padStart(2, '0');
+        if (secondsElement) secondsElement.textContent = seconds.toString().padStart(2, '0');
+        
+        // Add animation effect when seconds change
+        if (secondsElement) {
+            secondsElement.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                secondsElement.style.transform = 'scale(1)';
+            }, 300);
+        }
+    }
+    
+    // Update immediately and then every second
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+}
+// Render department tabs for events page
+function renderDepartmentTabs() {
+    const filterTabs = document.querySelector('.filter-tabs');
+    if (!filterTabs) {
+        console.error('Filter tabs container not found');
+        return;
+    }
+    
+    filterTabs.innerHTML = '';
+    
+    // Add "All Events" tab
+    const allTab = document.createElement('button');
+    allTab.className = `department-tab ${currentDepartment === 'all' ? 'active' : ''}`;
+    allTab.setAttribute('data-filter', 'all');
+    allTab.innerHTML = `
+        <i class="fas fa-th-large"></i>
+        All Events
+    `;
+    allTab.addEventListener('click', () => {
+        currentDepartment = 'all';
+        renderDepartmentTabs();
+        renderEvents();
+    });
+    filterTabs.appendChild(allTab);
+    
+    // Add department tabs
+    departments.forEach(dept => {
+        const tab = document.createElement('button');
+        tab.className = `department-tab ${currentDepartment === dept.id ? 'active' : ''}`;
+        tab.setAttribute('data-filter', dept.id);
+        tab.innerHTML = `
+            <i class="${dept.icon}"></i>
+            ${dept.name}
+        `;
+        tab.addEventListener('click', () => {
+            currentDepartment = dept.id;
+            renderDepartmentTabs();
+            renderEvents();
+        });
+        filterTabs.appendChild(tab);
+    });
+    
+    // Check for department parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const departmentParam = urlParams.get('department');
+    if (departmentParam && departments.find(dept => dept.id === departmentParam)) {
+        currentDepartment = departmentParam;
+        renderDepartmentTabs();
+        renderEvents();
+    }
+}
+
+// Enhanced event card animations
+function animateEventCards() {
+    const eventCards = document.querySelectorAll('.event-card');
+    
+    // Reset animations when filtering
+    eventCards.forEach(card => {
+        card.style.animation = 'none';
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(50px) scale(0.9)';
+    });
+    
+    // Trigger reflow
+    void eventCards[0]?.offsetHeight;
+    
+    // Apply animations with delays
+    eventCards.forEach((card, index) => {
+        card.style.animation = `
+            cardEntrance 0.8s ease-out ${index * 0.1}s forwards,
+            float 6s ease-in-out ${index * 0.5}s infinite,
+            pulseGlow 4s ease-in-out ${index * 0.3}s infinite
+        `;
+    });
+}
+
 
 // Create event card element
 function createEventCard(event) {
@@ -137,12 +549,13 @@ function createEventCard(event) {
     card.setAttribute('data-category', event.category);
     
     const priceText = event.price === 0 ? 'FREE' : `₹${event.price}`;
+    const department = departments.find(dept => dept.id === event.department);
     
     card.innerHTML = `
-        <img src="${event.image}" alt="${event.name}" class="event-image">
+        <img src="${event.image}" alt="${event.name}" class="event-image" loading="lazy">
         <div class="event-content">
             <div class="event-header">
-                <span class="event-department">${event.department}</span>
+                <span class="event-department">${department ? department.name : event.department}</span>
                 <span class="event-price">${priceText}</span>
             </div>
             <h3 class="event-title">${event.name}</h3>
@@ -182,18 +595,77 @@ function formatDate(dateString) {
     const options = { weekday: 'short', month: 'short', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-US', options);
 }
+const navToggle = document.querySelector('.nav-toggle');
+const navMenu = document.querySelector('.nav-menu');
+
+// Initialize the application
+async function init() {
+    // Start loading data immediately
+    await loadData();
+    
+    // Initialize animations and other functionality
+    initTantraAnimation();
+    initCountdownTimer(); // Add this line
+    setupEventListeners();
+    setupSmoothScrolling();
+    initScrollAnimations();
+    setActiveNavigation();
+}
+
+// Set active navigation based on current page
+function setActiveNavigation() {
+    const currentPage = window.location.pathname;
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (currentPage.includes('events.html') && link.getAttribute('href') === 'events.html') {
+            link.classList.add('active');
+        } else if (currentPage.endsWith('index.html') || currentPage.endsWith('/') && link.getAttribute('href') === '#home') {
+            link.classList.add('active');
+        }
+    });
+    
+    // Also update footer links
+    const footerLinks = document.querySelectorAll('.footer-link');
+    footerLinks.forEach(link => {
+        link.classList.remove('active');
+        if (currentPage.includes('events.html') && link.getAttribute('href') === 'events.html') {
+            link.classList.add('active');
+        } else if ((currentPage.endsWith('index.html') || currentPage.endsWith('/')) && link.getAttribute('href') === '#home') {
+            link.classList.add('active');
+        }
+    });
+}
+
+// Add intersection observer for scroll animations
+function initScrollAnimations() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+            }
+        });
+    }, { threshold: 0.1 });
+    
+    // Observe event cards
+    document.querySelectorAll('.event-card').forEach(card => {
+        observer.observe(card);
+    });
+    
+    // Observe featured cards
+    document.querySelectorAll('.featured-card').forEach(card => {
+        observer.observe(card);
+    });
+    
+    // Observe department cards
+    document.querySelectorAll('.department-card').forEach(card => {
+        observer.observe(card);
+    });
+}
 
 // Setup event listeners
 function setupEventListeners() {
-    // Filter tabs
-    filterTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            filterTabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            renderEvents(tab.dataset.filter);
-        });
-    });
-    
     // Event registration buttons
     document.addEventListener('click', (e) => {
         if (e.target.closest('.register-btn')) {
@@ -202,24 +674,27 @@ function setupEventListeners() {
         }
     });
     
-    // Modal close
-    closeModal.addEventListener('click', closeRegistrationModal);
-    registrationModal.addEventListener('click', (e) => {
-        if (e.target === registrationModal) {
-            closeRegistrationModal();
+    // Featured events click
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.featured-card')) {
+            const featuredCard = e.target.closest('.featured-card');
+            // The onclick is already handled in the HTML, but we can add additional logic here
         }
     });
+
     
-    // Form submission
-    registrationForm.addEventListener('submit', handleRegistration);
     
     // Navigation toggle
-    navToggle.addEventListener('click', toggleNavigation);
+    if (navToggle) {
+        navToggle.addEventListener('click', toggleNavigation);
+    }
     
     // Close mobile menu on link click
     document.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', () => {
-            navMenu.classList.remove('open');
+            if (navMenu) {
+                navMenu.classList.remove('open');
+            }
         });
     });
 }
@@ -240,72 +715,12 @@ function setupSmoothScrolling() {
     });
 }
 
-// Open registration modal
-function openRegistrationModal(eventId) {
-    const event = events.find(e => e.id == eventId);
-    if (event) {
-        eventNameInput.value = event.name;
-        registrationModal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-        
-        // Add entrance animation
-        setTimeout(() => {
-            registrationModal.classList.add('active');
-        }, 10);
-    }
-}
-
-// Close registration modal
-function closeRegistrationModal() {
-    registrationModal.classList.remove('active');
-    setTimeout(() => {
-        registrationModal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }, 300);
-}
-
-// Handle form submission
-function handleRegistration(e) {
-    e.preventDefault();
-    
-    const formData = {
-        event: eventNameInput.value,
-        name: document.getElementById('participant-name').value,
-        email: document.getElementById('participant-email').value,
-        phone: document.getElementById('participant-phone').value,
-        college: document.getElementById('participant-college').value,
-        branch: document.getElementById('participant-branch').value,
-        year: document.getElementById('participant-year').value,
-        transactionId: document.getElementById('transaction-id').value
-    };
-    
-    // Show loading state
-    const submitBtn = registrationForm.querySelector('.submit-btn');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Processing...</span>';
-    submitBtn.disabled = true;
-    
-    // Simulate API call
-    setTimeout(() => {
-        // In a real application, you would send this data to your server
-        console.log('Registration submitted:', formData);
-        
-        // Show success message
-        showNotification('Registration successful! Check your email for confirmation.', 'success');
-        
-        // Reset form and close modal
-        registrationForm.reset();
-        closeRegistrationModal();
-        
-        // Reset button
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    }, 2000);
-}
 
 // Toggle mobile navigation
 function toggleNavigation() {
-    navMenu.classList.toggle('open');
+    if (navMenu) {
+        navMenu.classList.toggle('open');
+    }
 }
 
 // Show notification
@@ -321,7 +736,6 @@ function showNotification(message, type = 'info') {
     
     document.body.appendChild(notification);
     
-    // Add styles for notification
     if (!document.querySelector('.notification-styles')) {
         const styles = document.createElement('style');
         styles.className = 'notification-styles';
@@ -375,10 +789,7 @@ function showNotification(message, type = 'info') {
         document.head.appendChild(styles);
     }
     
-    // Show notification
     setTimeout(() => notification.classList.add('show'), 10);
-    
-    // Auto remove after 5 seconds
     setTimeout(() => {
         notification.classList.remove('show');
         setTimeout(() => {

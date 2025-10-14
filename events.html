@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Events - TANTRA 2025</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="bg-particle" style="--i:1"></div>
+        <div class="bg-particle" style="--i:2"></div>
+        <div class="bg-particle" style="--i:3"></div>
+        <div class="bg-particle" style="--i:4"></div>
+        <div class="bg-particle" style="--i:5"></div>
+        <div class="bg-circuit"></div>
+    </div>
+
+    <!-- Events Page Hero -->
+    <section class="section events-hero" id="events">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">ALL <span>EVENTS</span></h2>
+                <p class="section-subtitle">Explore the complete lineup of TANTRA 2025 events</p>
+            </div>
+            
+            <!-- Department Tabs -->
+            <div class="department-tabs filter-tabs">
+                <!-- Tabs will be loaded dynamically -->
+            </div>
+            
+            <!-- Events Grid -->
+            <div class="events-grid" id="events-container">
+                <!-- Events will be loaded dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Registration Modal -->
+    <div class="modal" id="registration-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-badge">
+                    <i class="fas fa-bolt"></i>
+                    <span>Quick Registration</span>
+                </div>
+                <button class="close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="registration-form">
+                    <div class="form-group">
+                        <label class="form-label" for="event-name">Selected Event</label>
+                        <input type="text" id="event-name" class="form-input" readonly>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="participant-name">Full Name *</label>
+                            <input type="text" id="participant-name" class="form-input" required placeholder="Enter your full name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="participant-email">Email Address *</label>
+                            <input type="email" id="participant-email" class="form-input" required placeholder="your.email@college.edu">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="participant-phone">Phone Number *</label>
+                            <input type="tel" id="participant-phone" class="form-input" required placeholder="+91 98765 43210">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="participant-college">College *</label>
+                            <input type="text" id="participant-college" class="form-input" required placeholder="Your college name">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="participant-department">Department *</label>
+                            <select id="participant-department" class="form-input" required>
+                                <option value="">Select Your Department</option>
+                                <option value="Applied Electronics & Instrumentation Engineering">Applied Electronics & Instrumentation Engineering</option>
+                                <option value="Civil Engineering">Civil Engineering</option>
+                                <option value="Computer Science and Engineering (Cyber Security)">Computer Science and Engineering (Cyber Security)</option>
+                                <option value="Computer Science & Design">Computer Science & Design</option>
+                                <option value="Electrical & Electronics Engineering">Electrical & Electronics Engineering</option>
+                                <option value="Artificial Intelligence and Data Science">Artificial Intelligence and Data Science</option>
+                                <option value="Computer Science and Engineering and Business Systems">Computer Science and Engineering and Business Systems</option>
+                                <option value="Computer Science and Engineering">Computer Science and Engineering</option>
+                                <option value="Electronics & Communication Engineering">Electronics & Communication Engineering</option>
+                                <option value="Mechanical Engineering">Mechanical Engineering</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="participant-year">Year *</label>
+                            <select id="participant-year" class="form-input" required>
+                                <option value="">Select Year</option>
+                                <option value="1st Year">1st Year</option>
+                                <option value="2nd Year">2nd Year</option>
+                                <option value="3rd Year">3rd Year</option>
+                                <option value="4th Year">4th Year</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- QR Code Payment Section -->
+                    <div class="payment-section">
+                        <div class="payment-header">
+                            <i class="fas fa-qrcode"></i>
+                            <h4>Payment Information</h4>
+                        </div>
+                        
+                        <div class="qr-instruction">
+                            <p><strong>Scan to Pay:</strong> Use any UPI app to scan the QR code below and complete your payment.</p>
+                        </div>
+                        
+                        <div class="qr-code-container">
+                            <div class="qr-code-placeholder">
+                                <div class="qr-code-image">
+                                    <!-- Replace with your actual QR code image -->
+                                    <img src="images/payment-qr.png" alt="Payment QR Code" onerror="this.style.display='none'">
+                                    <div class="qr-fallback">
+                                        <i class="fas fa-qrcode"></i>
+                                        <span>Payment QR Code</span>
+                                        <small>UPI: tantra2025@paytm</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-instructions">
+                            <h5>Payment Instructions:</h5>
+                            <ul>
+                                <li>Scan the QR code with any UPI payment app</li>
+                                <li>Enter the exact amount shown above</li>
+                                <li>Add your name in the payment note</li>
+                                <li>Take a screenshot of the successful payment</li>
+                                <li>Enter the transaction ID below</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="transaction-id">
+                            <i class="fas fa-receipt"></i>
+                            Transaction ID *
+                        </label>
+                        <input type="text" id="transaction-id" class="form-input" required placeholder="Enter UPI transaction ID from payment receipt">
+                        <small class="input-help">Paste the Transaction ID from your payment confirmation</small>
+                    </div>
+                    
+                    <div class="form-footer">
+                        <button type="submit" class="submit-btn">
+                            <span>Complete Registration</span>
+                            <i class="fas fa-rocket"></i>
+                        </button>
+                        <p class="form-note">You'll receive confirmation email within 24 hours</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/events.js"></script>
+</body>
+</html>

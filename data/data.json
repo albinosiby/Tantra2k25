@@ -1,0 +1,134 @@
+{
+  "departments": [
+    {
+      "id": "dept_AEIE_001",
+      "created_at": "October 11, 2024 at 10:00:00 AM UTC+5:30",
+      "description": "Applied Electronics and Instrumentation Engineering department focusing on industrial automation and measurement systems",
+      "logo": "aeie_logo.jpg",
+      "name": "Applied Electronics & Instrumentation Engineering",
+      "qr_code": "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=UPI_ID_AEIE_001"
+    },
+    {
+      "id": "dept_CIVIL_002",
+      "created_at": "October 11, 2024 at 10:05:00 AM UTC+5:30",
+      "description": "Civil Engineering department specializing in infrastructure and construction technology",
+      "logo": "civil_logo.jpg",
+      "name": "Civil Engineering",
+      "qr_code": "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=UPI_ID_CIVIL_002"
+    },
+    {
+      "id": "dept_CSE_CYBER_003",
+      "created_at": "October 11, 2024 at 10:10:00 AM UTC+5:30",
+      "description": "Computer Science with specialization in Cyber Security and network protection",
+      "logo": "cse_cyber_logo.jpg",
+      "name": "Computer Science and Engineering (Cyber Security)",
+      "qr_code": "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=UPI_ID_CSE_CYBER_003"
+    },
+    {
+      "id": "dept_CSD_004",
+      "created_at": "October 11, 2024 at 10:15:00 AM UTC+5:30",
+      "description": "Computer Science and Design focusing on UI/UX and human-computer interaction",
+      "logo": "csd_logo.jpg",
+      "name": "Computer Science & Design",
+      "qr_code": "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=UPI_ID_CSD_004"
+    },
+    {
+      "id": "dept_EEE_005",
+      "created_at": "October 11, 2024 at 10:20:00 AM UTC+5:30",
+      "description": "Electrical and Electronics Engineering dealing with power systems and circuits",
+      "logo": "eee_logo.jpg",
+      "name": "Electrical & Electronics Engineering",
+      "qr_code": "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=UPI_ID_EEE_005"
+    },
+    {
+      "id": "dept_AI_DS_006",
+      "created_at": "October 11, 2024 at 10:25:00 AM UTC+5:30",
+      "description": "Artificial Intelligence and Data Science focusing on ML and analytics",
+      "logo": "ai_ds_logo.jpg",
+      "name": "Artificial Intelligence and Data Science",
+      "qr_code": "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=UPI_ID_AI_DS_006"
+    },
+    {
+      "id": "dept_CSE_BS_007",
+      "created_at": "October 11, 2024 at 10:30:00 AM UTC+5:30",
+      "description": "Computer Science with Business Systems integration",
+      "logo": "cse_bs_logo.jpg",
+      "name": "Computer Science and Engineering and Business Systems",
+      "qr_code": "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=UPI_ID_CSE_BS_007"
+    },
+    {
+      "id": "dept_CSE_008",
+      "created_at": "October 11, 2024 at 10:35:00 AM UTC+5:30",
+      "description": "Core Computer Science and Engineering department",
+      "logo": "cse_logo.jpg",
+      "name": "Computer Science and Engineering",
+      "qr_code": "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=UPI_ID_CSE_008"
+    },
+    {
+      "id": "dept_ECE_009",
+      "created_at": "October 11, 2024 at 10:40:00 AM UTC+5:30",
+      "description": "Electronics and Communication Engineering focusing on VLSI and communication systems",
+      "logo": "ece_logo.jpg",
+      "name": "Electronics & Communication Engineering",
+      "qr_code": "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=UPI_ID_ECE_009"
+    },
+    {
+      "id": "dept_MECH_010",
+      "created_at": "October 11, 2024 at 10:45:00 AM UTC+5:30",
+      "description": "Mechanical Engineering specializing in automotive and robotics",
+      "logo": "mech_logo.jpg",
+      "name": "Mechanical Engineering",
+      "qr_code": "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=UPI_ID_MECH_010"
+    }
+  ],
+  "events": [
+    {
+      "coordinator_name": "Dr. Rajesh Kumar",
+      "coordinator_phone": "9876543210",
+      "created_at": "October 12, 2024 at 2:30:00 PM UTC+5:30",
+      "date": "2024-11-15",
+      "department_id": "dept_AEIE_001",
+      "description": "Industrial Automation Challenge - Design and implement automation solutions for real-world industrial problems",
+      "event_image": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
+      "name": "AutoTech Challenge",
+      "registration_price": "50",
+      "time": "10:00",
+      "venue": "AEIE Lab, Block B"
+    },
+    {
+      "coordinator_name": "Prof. Anjali Sharma",
+      "coordinator_phone": "8765432109",
+      "created_at": "October 12, 2024 at 3:15:00 PM UTC+5:30",
+      "date": "2024-11-16",
+      "department_id": "dept_CIVIL_002",
+      "description": "Bridge Design Competition - Create innovative bridge designs using sustainable materials",
+      "event_image": "https://images.unsplash.com/photo-1503387769-00ec1e1d6457?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
+      "name": "Bridge Masters",
+      "registration_price": "30",
+      "time": "11:00",
+      "venue": "Civil Engineering Workshop"
+    },
+    {
+      "coordinator_name": "Dr. Priya Nair",
+      "coordinator_phone": "7654321098",
+      "created_at": "October 12, 2024 at 4:00:00 PM UTC+5:30",
+      "date": "2024-11-15",
+      "department_id": "dept_CSE_CYBER_003",
+      "description": "Capture The Flag cybersecurity competition with real-world vulnerability scenarios",
+      "event_image": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
+      "name": "Cyber Shield CTF",
+      "registration_price": "0",
+      "time": "14:00",
+      "venue": "Cyber Lab, Tech Park"
+    }
+  ],
+  "festival_info": {
+    "name": "TANTRA 2024",
+    "dates": "November 15-20, 2024",
+    "tagline": "Where Innovation Meets Technology",
+    "created_at": "October 10, 2024 at 12:00:00 PM UTC+5:30",
+    "total_events": "25+",
+    "expected_participants": "1500+",
+    "prize_pool": "₹2,00,000+"
+  }
+}

@@ -1,11 +1,10 @@
-<!-- index.html -->
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TANTRA 2024 - Tech Fest</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -19,60 +18,33 @@
         <div class="bg-circuit"></div>
     </div>
 
-    <!-- Header -->
-    <header>
-        <div class="nav-container">
-            <a href="#" class="logo">
-                <i class="fas fa-brain"></i>
-                <span class="logo-text">TANTRA<span class="logo-year">24</span></span>
-            </a>
-            
-            <button class="nav-toggle" aria-label="Toggle navigation">
-                <span class="hamburger"></span>
-            </button>
-            
-            <ul class="nav-menu">
-                <li><a href="#home" class="nav-link">Home</a></li>
-                <li><a href="#events" class="nav-link">Events</a></li>
-                <li><a href="#workshops" class="nav-link">Workshops</a></li>
-                <li><a href="#schedule" class="nav-link">Schedule</a></li>
-                <li><a href="#sponsors" class="nav-link">Sponsors</a></li>
-                <li><a href="#contact" class="nav-link">Contact</a></li>
-                <li><a href="#register" class="nav-link cta-nav">Register Now</a></li>
-            </ul>
-        </div>
-    </header>
-
     <!-- Hero Section -->
     <section class="hero-section" id="home">
         <div class="hero-content">
-            <div class="hero-badge">
-                <span>⚡ October 15-18, 2024</span>
+            <!-- TANTRA Text Animation -->
+            <div class="tantra-animation-container">
+                <div class="tantra-text">TANTRA</div>
             </div>
-            <h1 class="hero-title">
-                <span class="title-line">WHERE CODE</span>
-                <span class="title-line">MEETS</span>
-                <span class="title-line highlight">CREATIVITY</span>
-            </h1>
-            <p class="hero-subtitle">TANTRA 2024 - The ultimate battleground for tech innovators, creators, and visionaries. Push boundaries, break limits, and redefine possibilities.</p>
+
+            <p class="hero-subtitle">The ultimate battleground for tech innovators, creators, and visionaries. Push boundaries, break limits, and redefine possibilities.</p>
             
             <div class="hero-stats">
                 <div class="stat">
-                    <span class="stat-number">50+</span>
+                    <span class="stat-number">5+</span>
                     <span class="stat-label">Events</span>
                 </div>
                 <div class="stat">
-                    <span class="stat-number">1000+</span>
+                    <span class="stat-number">500+</span>
                     <span class="stat-label">Participants</span>
                 </div>
                 <div class="stat">
-                    <span class="stat-number">₹1L+</span>
+                    <span class="stat-number">₹50K+</span>
                     <span class="stat-label">Prize Pool</span>
                 </div>
             </div>
             
             <div class="hero-actions">
-                <a href="#events" class="cta-button primary">
+                <a href="#featured" class="cta-button primary">
                     <span>Explore Events</span>
                     <i class="fas fa-arrow-right"></i>
                 </a>
@@ -82,127 +54,137 @@
                 </a>
             </div>
         </div>
-        
-        <div class="hero-visual">
-            <div class="floating-card card-1">
-                <i class="fas fa-code"></i>
-                <span>Code</span>
-            </div>
-            <div class="floating-card card-2">
-                <i class="fas fa-robot"></i>
-                <span>AI</span>
-            </div>
-            <div class="floating-card card-3">
-                <i class="fas fa-microchip"></i>
-                <span>Tech</span>
-            </div>
-        </div>
     </section>
 
-    <!-- Events Section -->
-    <section class="section" id="events">
+    <!-- Countdown Timer Section -->
+    <!-- Enhanced Brain-Stimming Countdown Timer Section -->
+<section class="section countdown-section" id="countdown">
+    <!-- Neural Connections -->
+    <div class="neural-connections">
+        <svg class="connection-path" width="200" height="100">
+            <path d="M0,50 Q100,0 200,50" stroke="rgba(0,245,255,0.3)" fill="none" stroke-width="2"/>
+        </svg>
+        <svg class="connection-path" width="200" height="100">
+            <path d="M0,30 Q100,80 200,30" stroke="rgba(157,78,221,0.3)" fill="none" stroke-width="2"/>
+        </svg>
+        <svg class="connection-path" width="200" height="100">
+            <path d="M0,70 Q100,20 200,70" stroke="rgba(255,46,146,0.3)" fill="none" stroke-width="2"/>
+        </svg>
+    </div>
+    
+    <section class="section countdown-section" id="countdown">
+    <!-- Bouncing Background -->
+    <div class="bouncing-bg"></div>
+    
+    <!-- Bouncing Particles -->
+    <div class="bouncing-particles">
+        <div class="bouncing-particle" style="top: 15%; left: 20%; animation-delay: 0s;"></div>
+        <div class="bouncing-particle" style="top: 40%; left: 80%; animation-delay: 0.5s;"></div>
+        <div class="bouncing-particle" style="top: 70%; left: 30%; animation-delay: 1s;"></div>
+        <div class="bouncing-particle" style="top: 25%; left: 60%; animation-delay: 1.5s;"></div>
+        <div class="bouncing-particle" style="top: 85%; left: 40%; animation-delay: 2s;"></div>
+        <div class="bouncing-particle" style="top: 55%; left: 10%; animation-delay: 2.5s;"></div>
+    </div>
+    
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">EVENT <span>COUNTDOWN</span></h2>
+            <p class="section-subtitle">TANTRA 2025 kicks off in</p>
+        </div>
+        
+        <div class="countdown-container">
+            <div class="countdown-item">
+                <div class="countdown-number" id="days">00</div>
+                <div class="countdown-label">Days</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="hours">00</div>
+                <div class="countdown-label">Hours</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="minutes">00</div>
+                <div class="countdown-label">Minutes</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="seconds">00</div>
+                <div class="countdown-label">Seconds</div>
+            </div>
+        </div>
+        
+        <div class="countdown-event">
+            <h3>🎉 TANTRA 2024 Grand Opening</h3>
+            <p>October 25, 2025 | 10:00 AM</p>
+        </div>
+    </div>
+</section>
+    <!-- Departments Section -->
+    <section class="section" id="departments">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">BRAIN-BENDING <span>EVENTS</span></h2>
-                <p class="section-subtitle">Challenge your intellect, showcase your skills, and compete with the best minds</p>
+                <h2 class="section-title">EXPLORE BY <span>DEPARTMENT</span></h2>
+                <p class="section-subtitle">Dive deep into your area of interest and expertise</p>
             </div>
             
-            <div class="filter-tabs">
-                <button class="filter-tab active" data-filter="all">All Events</button>
-                <button class="filter-tab" data-filter="technical">Technical</button>
-                <button class="filter-tab" data-filter="robotics">Robotics</button>
-                <button class="filter-tab" data-filter="ai">AI/ML</button>
-                <button class="filter-tab" data-filter="workshop">Workshops</button>
-            </div>
-            
-            <div class="events-grid" id="events-container">
-                <!-- Events loaded dynamically -->
+            <div class="departments-grid" id="departments-container">
+                <!-- Departments will be loaded dynamically -->
             </div>
             
             <div class="section-footer">
-                <a href="#all-events" class="view-all-btn">
-                    View All Events
-                    <i class="fas fa-chevron-right"></i>
+                <a href="events.html" class="view-all-btn">
+                    <span>View All Events</span>
+                    <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
         </div>
     </section>
 
-    <!-- Registration Modal -->
-    <div class="modal" id="registration-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-badge">
-                    <i class="fas fa-bolt"></i>
-                    <span>Quick Registration</span>
-                </div>
-                <h3 class="modal-title">Join the Innovation Revolution</h3>
-                <button class="close-modal">
-                    <i class="fas fa-times"></i>
-                </button>
+    <!-- Footer -->
+    <!-- Enhanced Footer -->
+<footer class="footer">
+    <div class="footer-content">
+        <!-- Footer Main Content -->
+        <div class="footer-main">
+            <div class="footer-logo">
+                <span>TANTRA 25</span>
             </div>
-            <div class="modal-body">
-                <form id="registration-form">
-                    <div class="form-group">
-                        <label class="form-label" for="event-name">Selected Event</label>
-                        <input type="text" id="event-name" class="form-input" readonly>
+            <p class="footer-tagline">The ultimate battleground for tech innovators, creators, and visionaries</p>
+        </div>
+
+        <!-- Footer Links Grid -->
+        <div class="footer-grid">
+            <!-- Contact Information -->
+            <div class="footer-column">
+                <h4 class="footer-title">Contact Info</h4>
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Vimal Jyothi Engineering College <br>Jyothi Nagar, Chemperi (PO) <br>
+                             Kannur - 670632, <br>Kerala, India.</span>
                     </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label" for="participant-name">Full Name *</label>
-                            <input type="text" id="participant-name" class="form-input" required placeholder="Enter your full name">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="participant-email">Email Address *</label>
-                            <input type="email" id="participant-email" class="form-input" required placeholder="your.email@college.edu">
-                        </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>tantratechvjec@gmail.com</span>
                     </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label" for="participant-phone">Phone Number *</label>
-                            <input type="tel" id="participant-phone" class="form-input" required placeholder="+91 98765 43210">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="participant-college">College *</label>
-                            <input type="text" id="participant-college" class="form-input" required placeholder="Your college name">
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label" for="participant-branch">Branch *</label>
-                            <input type="text" id="participant-branch" class="form-input" required placeholder="Computer Science">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="participant-year">Year *</label>
-                            <select id="participant-year" class="form-input" required>
-                                <option value="">Select Year</option>
-                                <option value="1st Year">1st Year</option>
-                                <option value="2nd Year">2nd Year</option>
-                                <option value="3rd Year">3rd Year</option>
-                                <option value="4th Year">4th Year</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="transaction-id">Transaction ID (if paid)</label>
-                        <input type="text" id="transaction-id" class="form-input" placeholder="Enter UPI transaction ID">
-                    </div>
-                    
-                    <div class="form-footer">
-                        <button type="submit" class="submit-btn">
-                            <span>Complete Registration</span>
-                            <i class="fas fa-rocket"></i>
-                        </button>
-                        <p class="form-note">You'll receive confirmation email within 24 hours</p>
-                    </div>
-                </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <div class="footer-bottom-content">
+                <p>&copy; 2025 TANTRA Tech Fest. All rights reserved.</p>
+                <div class="footer-legal">
+                    <a href="#privacy" class="legal-link">Privacy Policy</a>
+                    <a href="#terms" class="legal-link">Terms of Service</a>
+                    <a href="#cookies" class="legal-link">Cookie Policy</a>
+                </div>
+            </div>
+            <div class="footer-credits">
+                <p>Made with <i class="fas fa-heart" style="color: #ff2e92;"></i> 2022-26 batch</p>
             </div>
         </div>
     </div>
+</footer>
 
     <script src="js/script.js"></script>
 </body>
