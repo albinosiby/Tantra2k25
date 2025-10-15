@@ -96,41 +96,58 @@ window.testEvents = testEvents;
 window.testData = testData;
 window.inspectEventCards = inspectEventCards;
 
-// Load data from JSON file
+// Load data from server or fallback to static JSON, then defaults
 async function loadData() {
     try {
-        console.log('Loading data from data.json...');
-        const response = await fetch('data/data.json');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        let data = null;
+
+        // Try server API first
+        try {
+            const response = await fetch('/api/data');
+            if (response && response.ok) {
+                data = await response.json();
+            }
+        } catch (err) {
+            // server not available or network error; we'll try static JSON next
+            data = null;
         }
-        const data = await response.json();
-        
+
+        // If server data not available, try static JSON (works when opened via file://)
+        if (!data) {
+            try {
+                const resp = await fetch('data/data.json');
+                if (resp && resp.ok) {
+                    data = await resp.json();
+                }
+            } catch (err) {
+                data = null;
+            }
+        }
+
+        // If still no data, use built-in defaults
+        if (!data) {
+            console.log('No remote/static data found — using builtin defaults');
+            events = getDefaultEvents();
+            departments = getDefaultDepartments();
+            festivalInfo = getDefaultFestivalInfo();
+            return { events, departments, festivalInfo };
+        }
+
+        // Assign normalized fields (support both festivalInfo and festival_info)
         events = data.events || [];
         departments = data.departments || [];
-        festivalInfo = data.festivalInfo || {};
-        
+        festivalInfo = data.festivalInfo || data.festival_info || {};
+
         console.log('Data loaded successfully:');
         console.log('- Events:', events.length);
         console.log('- Departments:', departments.length);
-        console.log('- Festival Info:', festivalInfo);
-        
-        // Log first event to check ID
-        if (events.length > 0) {
-            console.log('First event details:', events[0]);
-            console.log('First event ID type:', typeof events[0].id);
-        }
-        
+
         return data;
     } catch (error) {
-        console.error('Error loading data:', error);
-        console.log('Using default data as fallback...');
-        
-        // Fallback to default data
+        console.error('Unexpected error loading data:', error);
         events = getDefaultEvents();
         departments = getDefaultDepartments();
         festivalInfo = getDefaultFestivalInfo();
-        
         return { events, departments, festivalInfo };
     }
 }
@@ -291,15 +308,13 @@ function updatePageContent() {
 
 // Render department tabs for events page
 function renderDepartmentTabs() {
-    const filterTabs = document.querySelector('.filter-tabs');
+    const filterTabs = document.getElementById('filter-tabs');
+    const filterToggle = document.getElementById('filter-toggle-btn');
     if (!filterTabs) {
         console.error('Filter tabs container not found');
         return;
     }
-    
-    console.log('Rendering department tabs...');
     filterTabs.innerHTML = '';
-    
     // Add "All Events" tab
     const allTab = document.createElement('button');
     allTab.className = `department-tab ${currentDepartment === 'all' ? 'active' : ''}`;
@@ -309,16 +324,14 @@ function renderDepartmentTabs() {
         All Events
     `;
     allTab.addEventListener('click', () => {
-        console.log('All events tab clicked');
         currentDepartment = 'all';
-        // Update URL without page reload
         updateURLParameter('department', 'all');
         renderDepartmentTabs();
         renderEvents();
         resetPageTitle();
+        if (window.innerWidth <= 600 && filterTabs) filterTabs.style.display = 'none';
     });
     filterTabs.appendChild(allTab);
-    
     // Add department tabs
     departments.forEach(dept => {
         const tab = document.createElement('button');
@@ -329,18 +342,28 @@ function renderDepartmentTabs() {
             ${dept.name}
         `;
         tab.addEventListener('click', () => {
-            console.log('Department tab clicked:', dept.name, 'ID:', dept.id);
             currentDepartment = dept.id;
-            // Update URL without page reload
             updateURLParameter('department', dept.id);
             renderDepartmentTabs();
             renderEvents();
             updatePageTitle(dept.name);
+            if (window.innerWidth <= 600 && filterTabs) filterTabs.style.display = 'none';
         });
         filterTabs.appendChild(tab);
     });
-    
-    console.log('Department tabs rendered:', departments.length + 1);
+    // Responsive: hide/show filter tabs on phone
+    if (filterToggle) {
+        if (window.innerWidth <= 600) {
+            filterTabs.style.display = 'none';
+            filterToggle.style.display = 'inline-flex';
+            filterToggle.onclick = () => {
+                filterTabs.style.display = filterTabs.style.display === 'none' ? 'flex' : 'none';
+            };
+        } else {
+            filterTabs.style.display = 'flex';
+            filterToggle.style.display = 'none';
+        }
+    }
 }
 function updateURLParameter(key, value) {
     const url = new URL(window.location);
@@ -406,44 +429,27 @@ function renderEvents() {
     
     console.log('Filtered events count:', filteredEvents.length);
     
-    // Show department info when filtered
+    // When filtered by department, show only the events grid (no department card/header)
     if (currentDepartment !== 'all' && filteredEvents.length > 0) {
-        const department = departments.find(dept => dept.id === currentDepartment);
-        if (department) {
-            eventsContainer.innerHTML = `
-                <div class="department-header">
-                    <div class="department-info">
-                        <div class="department-icon" style="color: ${department.color}">
-                            <i class="${department.icon}"></i>
-                        </div>
-                        <div class="department-details">
-                            <h3>${department.name}</h3>
-                            <p>${department.description}</p>
-                            <div class="department-stats">
-                                <span class="event-count">${filteredEvents.length} Events</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="events-grid" id="events-grid-content">
-                    <!-- Events will be loaded here -->
-                </div>
-            `;
-            
-            // Update the container reference to the new grid
-            const eventsGrid = document.getElementById('events-grid-content');
-            if (eventsGrid) {
-                filteredEvents.forEach(event => {
-                    const eventCard = createEventCard(event);
-                    eventsGrid.appendChild(eventCard);
-                });
-            }
-            
-            // Animate the cards after they're rendered
-            setTimeout(animateEventCards, 100);
-            console.log('Department events rendered successfully');
-            return;
+        eventsContainer.innerHTML = `
+            <div class="events-grid" id="events-grid-content">
+                <!-- Events will be loaded here -->
+            </div>
+        `;
+
+        // Populate grid with filtered events
+        const eventsGrid = document.getElementById('events-grid-content');
+        if (eventsGrid) {
+            filteredEvents.forEach(event => {
+                const eventCard = createEventCard(event);
+                eventsGrid.appendChild(eventCard);
+            });
         }
+
+        // Animate the cards after they're rendered
+        setTimeout(animateEventCards, 100);
+        console.log('Filtered department events rendered successfully (no department card)');
+        return;
     }
     
     // Default rendering for "All Events"
@@ -484,42 +490,92 @@ function createEventCard(event) {
     
     console.log('Creating event card for:', event.name, 'with ID:', eventId, 'Type:', typeof eventId);
     
-    card.innerHTML = `
-        <img src="${event.image}" alt="${event.name}" class="event-image" loading="lazy" 
-             onerror="this.src='https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80'">
-        <div class="event-content">
-            <div class="event-header">
-                <span class="event-department">${department ? department.name : event.department}</span>
-                <span class="event-price">${priceText}</span>
-            </div>
-            <h3 class="event-title">${event.name}</h3>
-            <p class="event-description">${event.description}</p>
+        const isOpen = event.status === 1;
+        card.classList.add('flip-card');
+        card.innerHTML = `
+            <div class="flip-card-inner">
+                <div class="flip-card-front">
+                    <img src="${event.image}" alt="${event.name}" class="event-image" loading="lazy"
+                        onerror="this.src='https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80'">
+                    <div class="event-content">
+                        <h3 class="event-title">${event.name}</h3>
+                        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                            <span class="event-group"><i class="fas fa-users"></i> ${event.category}</span>
+                            <span class="event-price">₹${event.price}</span>
+                        </div>
+                        <div class="event-actions" style="display:flex;gap:8px;">
+                            ${isOpen
+                                ? `<button class="register-btn" data-event-id="${eventId}">
+                                        <span>Register Now</span>
+                                        <i class="fas fa-arrow-right"></i>
+                                    </button>`
+                                : `<button class="register-btn" data-event-id="${eventId}" disabled style="background:#aaa;cursor:not-allowed;">
+                                        <span>Registration Closed</span>
+                                        <i class="fas fa-lock"></i>
+                                    </button>`
+                            }
+                            <button class="details-btn">Details</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="flip-card-back" style="background: linear-gradient(145deg, #121428, #1a1c2e); color: #ffffff; border-radius: 20px; padding: 26px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; height: 100%; transition: all 0.3s ease;">
+  <div class="event-details-content" style="display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 400px; text-align: left;">
+
+        <div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: center; font-size: 1rem; color: #ffe066; justify-content: center;">
+            <span style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.07); padding: 4px 10px; border-radius: 8px; font-weight: 600;">
+                <i class="fas fa-trophy" style="color: #ffd700;"></i> Prize: ${event.prize || '—'}
+            </span>
             
-            <div class="event-details">
-                <div class="event-detail">
-                    <i class="fas fa-calendar"></i>
-                    <span>${formatDate(event.date)}</span>
-                </div>
-                <div class="event-detail">
-                    <i class="fas fa-clock"></i>
-                    <span>${event.time}</span>
-                </div>
-                <div class="event-detail">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <span>${event.venue}</span>
-                </div>
-                <div class="event-detail">
-                    <i class="fas fa-users"></i>
-                    <span>${event.participants} Participants</span>
-                </div>
-            </div>
-            
-            <button class="register-btn" data-event-id="${eventId}">
-                <span>Register Now</span>
-                <i class="fas fa-arrow-right"></i>
-            </button>
         </div>
-    `;
+
+    <div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: center; font-size: 1rem; color: #c8c8e5;">
+      <span style="display: flex; align-items: center; gap: 6px;">
+        <i class="fas fa-user" style="color: #7dd3fc;"></i> 
+        <strong>Coordinator:</strong> ${event.coordinator || ''}
+      </span>
+      <span style="display: flex; align-items: center; gap: 6px;">
+        <i class="fas fa-phone" style="color: #7dd3fc;"></i> ${event.coordinatorPhone || ''}
+      </span>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: center; font-size: 1rem; color: #c8c8e5;">
+      <span style="display: flex; align-items: center; gap: 6px;">
+        <i class="fas fa-map-marker-alt" style="color: #7dd3fc;"></i> 
+        <strong>Venue:</strong> ${event.venue || ''}
+      </span>
+      <span style="display: flex; align-items: center; gap: 6px;">
+        <i class="fas fa-clock" style="color: #7dd3fc;"></i> 
+        <strong>Time:</strong> ${event.time || ''}
+      </span>
+    </div>
+
+    <div class="event-description" style="margin-top: 8px; line-height: 1.6; color: #d6d6f5; font-size: 1rem; background: rgba(255,255,255,0.05); padding: 12px 16px; border-radius: 12px;">
+      ${event.description || ''}
+    </div>      
+
+  </div>
+</div>
+
+                </div>
+            </div>
+        `;
+
+        // Flip logic
+        const inner = card.querySelector('.flip-card-inner');
+        const detailsBtns = card.querySelectorAll('.details-btn');
+        detailsBtns.forEach(btn => {
+            btn.addEventListener('click', e => {
+                e.stopPropagation();
+                inner.classList.toggle('flipped');
+            });
+        });
+        card.addEventListener('click', e => {
+            // Only flip if not clicking a button
+            if (!e.target.classList.contains('register-btn') && !e.target.classList.contains('details-btn')) {
+                inner.classList.toggle('flipped');
+            }
+        });
+        return card;
     
     return card;
 }
@@ -680,6 +736,8 @@ function openRegistrationModal(eventId) {
     
     if (event && registrationModal && eventNameInput) {
         eventNameInput.value = event.name;
+        // set QR code in modal based on event's department
+        updateModalQr(event.department);
         registrationModal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
         
@@ -705,6 +763,8 @@ function openRegistrationModal(eventId) {
             if (fallbackEvent && registrationModal && eventNameInput) {
                 console.log('Using fallback event:', fallbackEvent.name);
                 eventNameInput.value = fallbackEvent.name;
+                // set QR code from fallback event's department
+                updateModalQr(fallbackEvent.department);
                 registrationModal.style.display = 'flex';
                 document.body.style.overflow = 'hidden';
                 setTimeout(() => {
@@ -715,6 +775,8 @@ function openRegistrationModal(eventId) {
                 console.log('Creating test event for modal');
                 if (registrationModal && eventNameInput) {
                     eventNameInput.value = "Technical Event";
+                    // no department known for test event; clear/set default QR
+                    updateModalQr(null);
                     registrationModal.style.display = 'flex';
                     document.body.style.overflow = 'hidden';
                     setTimeout(() => {
@@ -725,6 +787,40 @@ function openRegistrationModal(eventId) {
                 }
             }
         }
+    }
+}
+
+// Update the registration modal QR image/text from department data
+function updateModalQr(deptId) {
+    if (!registrationModal) return;
+    const qrImg = registrationModal.querySelector('.qr-code-image img');
+    const qrFallbackSmall = registrationModal.querySelector('.qr-fallback small');
+
+    const defaultText = 'UPI: tantra2025@paytm';
+
+    if (!deptId) {
+        // show generic QR if available in static images or fallback text
+        if (qrImg) {
+            qrImg.src = 'images/payment-qr.png';
+            qrImg.style.display = '';
+        }
+        if (qrFallbackSmall) qrFallbackSmall.textContent = defaultText;
+        return;
+    }
+
+    const dept = departments.find(d => d.id === deptId);
+    if (dept && dept.qr_code) {
+        if (qrImg) {
+            qrImg.src = dept.qr_code;
+            qrImg.style.display = '';
+        }
+        if (qrFallbackSmall) qrFallbackSmall.textContent = dept.qr_code;
+    } else {
+        if (qrImg) {
+            qrImg.src = 'images/payment-qr.png';
+            qrImg.style.display = '';
+        }
+        if (qrFallbackSmall) qrFallbackSmall.textContent = defaultText;
     }
 }
 
@@ -753,6 +849,8 @@ function handleRegistration(e) {
         college: document.getElementById('participant-college')?.value || '',
         department: document.getElementById('participant-department')?.value || '',
         year: document.getElementById('participant-year')?.value || '',
+        // send branch/Class as requested
+        'branch/Class': document.getElementById('participant-branch')?.value || '',
         transactionId: document.getElementById('transaction-id')?.value || ''
     };
     
@@ -764,16 +862,30 @@ function handleRegistration(e) {
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Processing...</span>';
         submitBtn.disabled = true;
-        
-        // Simulate API call
-        setTimeout(() => {
-            console.log('Registration submitted:', formData);
-            showNotification('Registration successful! Check your email for confirmation.', 'success');
-            if (registrationForm) registrationForm.reset();
-            closeRegistrationModal();
+
+        // Send registration to backend
+        fetch('/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'ok' && data.saved) {
+                showNotification('Registration successful! Check your email for confirmation.', 'success');
+                if (registrationForm) registrationForm.reset();
+                closeRegistrationModal();
+            } else {
+                showNotification('Registration failed. Please try again.', 'error');
+            }
+        })
+        .catch(err => {
+            showNotification('Registration failed. Please try again.', 'error');
+        })
+        .finally(() => {
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
-        }, 2000);
+        });
     }
 }
 

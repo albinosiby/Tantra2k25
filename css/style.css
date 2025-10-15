@@ -1,3 +1,90 @@
+.event-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+}
+.register-btn[disabled] {
+    background: #aaa !important;
+    color: #fff !important;
+    cursor: not-allowed;
+}
+.register-btn:hover:not([disabled]), .details-btn:hover {
+    background: var(--gradient-secondary);
+    color: var(--accent-purple);
+}
+html {
+    scroll-behavior: smooth;
+}
+/* Filter toggle button for mobile */
+.filter-toggle {
+    display: none;
+    background: var(--gradient-primary);
+    color: var(--primary-bg);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin-bottom: 0.7rem;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: background 0.2s, color 0.2s;
+}
+.filter-toggle:active, .filter-toggle:focus {
+    background: var(--gradient-secondary);
+    color: var(--accent-purple);
+}
+@media (max-width: 600px) {
+    .filter-toggle {
+        display: inline-flex;
+    }
+    .filter-tabs {
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 0.7rem;
+    }
+}
+.event-image {
+    border-radius: 12px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.10);
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+.flip-card {
+    background: transparent;
+    border-radius: 14px;
+    perspective: 1200px;
+    position: relative;
+    width: 100%; /* allow width to be set by grid or container */
+    max-width: 350px; /* optional: limit max width for aesthetics */
+    height: 400px; /* fixed height for all cards */
+    min-width: 220px;
+    margin: 0 auto;
+}
+.flip-card-inner {
+    position: relative;
+    transition: transform 0.75s cubic-bezier(.2,.9,.2,1);
+    transform-style: preserve-3d;
+    border-radius: 14px;
+    width: 100%;
+    height: 100%;
+}
+.flip-card-front, .flip-card-back {
+    position: relative;
+    min-height: unset;
+    width: 100%;
+    height: 100%;
+    border-radius: 14px;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
 /* style.css - Complete Updated Version */
 :root {
     --primary-bg: #0a0a1a;
@@ -27,6 +114,99 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
+}
+
+/* Initial Animation Styles */
+.initial-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--primary-bg);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    visibility: visible;
+    transition: all 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.initial-animation.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.initial-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.skip-button {
+    position: absolute;
+    bottom: 40px;
+    right: 40px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    opacity: 0.8;
+}
+
+.skip-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    opacity: 1;
+}
+
+/* Prevent body scroll during animation */
+body.animation-playing {
+    overflow: hidden;
+    height: 100vh;
+}
+
+/* Responsive design for initial animation */
+@media (max-width: 768px) {
+    .skip-button {
+        bottom: 20px;
+                animation: tantra-float 2.2s ease-in-out infinite alternate;
+        right: 20px;
+        padding: 10px 20px;
+        font-size: 0.8rem;
+    }
+    
+    .initial-video {
+        object-fit: contain;
+}
+
+@keyframes tantra-float {
+    0% {
+        transform: translateY(0);
+        text-shadow: 0 0 8px #00f5ff44, 0 0 0px #ff2e9244;
+    }
+    50% {
+        transform: translateY(-12px);
+        text-shadow: 0 0 18px #00f5ff99, 0 0 8px #ff2e9299;
+    }
+    100% {
+        transform: translateY(0);
+        text-shadow: 0 0 8px #00f5ff44, 0 0 0px #ff2e9244;
+    }
+    }
 }
 
 /* Animated Background */
@@ -220,7 +400,7 @@ header {
     height: 100vh;
     min-height: 400px;
     position: relative;
-    margin-bottom: 1rem;
+    margin-bottom: 0.1rem;
 }
 
 .tantra-text {
@@ -265,14 +445,23 @@ header {
     .tantra-text {
         font-size: 5rem;
     }
+    /* lift the TANTRA text slightly on tablet/large-mobile */
+    .tantra-animation-container {
+        transform: translateY(-8vh);
+    }
 }
 
 @media (max-width: 480px) {
     .tantra-text {
         font-size: 3.5rem;
     }
+    /* lift even more and reduce height on small mobile screens */
+    .tantra-animation-container {
+        transform: translateY(-2vh);
+        height: 50vh;
+        min-height: 100px;
+    }
 }
-
 /* Enhanced Hero Section */
 .hero-section {
     min-height: 100vh;
@@ -314,12 +503,51 @@ header {
 .hero-subtitle {
     font-size: 1.3rem;
     color: var(--text-secondary);
-    margin-top: 1rem;
+    margin-top: 0.1rem;
     line-height: 1.6;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
 }
+
+/* Developers interactive grid (Option B) */
+.interactive-section {
+    padding: 60px 0 100px;
+}
+.interactive-hero{
+    text-align:center;margin-bottom:28px
+}
+.interactive-hero h1{font-size:36px;margin-bottom:8px}
+.interactive-hero p{color:var(--text-secondary);margin-bottom:16px}
+.interactive-dev-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;align-items:stretch}
+.dev-card{background:transparent;border-radius:14px;perspective:1200px}
+.dev-card-inner{position:relative;transition:transform 0.75s cubic-bezier(.2,.9,.2,1);transform-style:preserve-3d;border-radius:14px}
+.dev-card-front,.dev-card-back{position:relative;min-height:320px;border-radius:14px;backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.dev-card-front{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.04)}
+.dev-card-back{position:absolute;inset:0;transform:rotateY(180deg);background:linear-gradient(180deg, rgba(15,10,30,0.6), rgba(10,10,20,0.6));border:1px solid rgba(255,255,255,0.03)}
+.dev-photo{width:110px;height:110px;border-radius:50%;object-fit:cover;box-shadow:0 8px 30px rgba(0,0,0,0.6);border:3px solid rgba(255,255,255,0.03)}
+.dev-name{font-size:18px;margin-top:12px;font-weight:700}
+.dev-role{color:var(--text-secondary);margin-bottom:12px}
+.dev-bio{color:var(--text-secondary);font-size:0.95rem;padding:0 6px;text-align:center;margin-bottom:12px}
+.dev-links{display:flex;gap:12px;margin-top:8px}
+.dev-links a{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,0.03);color:var(--text-primary);text-decoration:none;transition:all .2s}
+.dev-links a:hover{transform:translateY(-4px);box-shadow:0 10px 30px rgba(111,92,255,0.12)}
+.dev-actions{margin-top:12px;display:flex;gap:10px}
+.btn-outline{padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);color:var(--text-primary);text-decoration:none;font-weight:600}
+.btn-primary{padding:10px 14px;border-radius:10px;background:var(--gradient-primary);color:var(--primary-bg);text-decoration:none;font-weight:700}
+
+/* Hover/flip interaction */
+.dev-card.is-flipped .dev-card-inner{transform:rotateY(180deg) translateZ(0) scale(1.02)}
+
+/* Small-screen: disable hover flip (use click) */
+@media (max-width: 768px){
+    .dev-card-front,.dev-card-back{min-height:280px}
+}
+
+/* subtle entrance */
+.dev-card{opacity:0;transform:translateY(12px)}
+.dev-card.visible{opacity:1;transform:none;transition:all 0.6s cubic-bezier(.2,.9,.2,1)}
+
 
 .hero-stats {
     display: flex;
@@ -994,7 +1222,7 @@ header {
 .events-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-    gap: 2rem;
+    gap: 1rem;
     margin-bottom: 3rem;
 }
 
@@ -1243,25 +1471,26 @@ header {
     transform: scale(1.2);
 }
 
-.register-btn {
-    width: 100%;
-    padding: 1rem;
-    background: var(--gradient-primary);
-    border: none;
+.register-btn, .details-btn {
+    min-width: 0;
+    width: auto;
+    padding: 10px 18px;
     border-radius: 10px;
-    color: var(--primary-bg);
+    font-size: 1rem;
     font-weight: 700;
+    border: none;
+    outline: none;
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    display: flex;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 8px;
+    background: var(--gradient-primary);
+    color: var(--primary-bg);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     position: relative;
     overflow: hidden;
-    transform: translateY(20px);
-    opacity: 0;
-    animation: slideUpFade 0.6s ease-out 0.7s forwards;
 }
 
 .register-btn::before {
@@ -2453,3 +2682,47 @@ header {
         font-size: 1.5rem;
     }
 }
+
+
+
+    /* Event Flip Card Styles */
+    .flip-card {
+        background: transparent;
+        border-radius: 14px;
+        perspective: 1200px;
+        position: relative;
+    }
+    .flip-card-inner {
+        position: relative;
+        transition: transform 0.75s cubic-bezier(.2,.9,.2,1);
+        transform-style: preserve-3d;
+        border-radius: 14px;
+    }
+    .flip-card-front, .flip-card-back {
+        position: relative;
+        min-height: 320px;
+        border-radius: 14px;
+        backface-visibility: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    .flip-card-front {
+        background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+        border: 1px solid rgba(255,255,255,0.04);
+    }
+    .flip-card-back {
+        position: absolute;
+        inset: 0;
+        transform: rotateY(180deg);
+        background: linear-gradient(180deg, rgba(15,10,30,0.6), rgba(10,10,20,0.6));
+        border: 1px solid rgba(255,255,255,0.03);
+    }
+    .flip-card-inner.flipped {
+        transform: rotateY(180deg) translateZ(0) scale(1.02);
+    }
+    @media (max-width: 768px) {
+        .flip-card-front, .flip-card-back { min-height: 280px; }
+    }

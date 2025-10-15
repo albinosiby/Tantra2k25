@@ -185,16 +185,28 @@ function initTantraAnimation() {
 // Load data from JSON file
 async function loadData() {
     try {
-        const response = await fetch('data/data.json');
-        if (!response.ok) {
-            throw new Error('Failed to load data');
+        // Try server API first (Flask). If unavailable, fall back to the static JSON file.
+        let data = null;
+        try {
+            const response = await fetch('/api/data');
+            if (response && response.ok) {
+                data = await response.json();
+            }
+        } catch (err) {
+            // API fetch failed (server not running or network); we'll try static JSON below
+            data = null;
         }
-        const data = await response.json();
-        
-        events = data.events;
-        departments = data.departments;
-        festivalInfo = data.festivalInfo;
-        
+
+        if (!data) {
+            const fallbackResp = await fetch('data/data.json');
+            if (!fallbackResp.ok) throw new Error('Failed to load fallback data');
+            data = await fallbackResp.json();
+        }
+
+        events = data.events || [];
+        departments = data.departments || [];
+        festivalInfo = data.festivalInfo || data.festival_info || {};
+
         // Update page content with loaded data
         updatePageContent();
         
@@ -202,7 +214,6 @@ async function loadData() {
     } catch (error) {
         console.error('Error loading data:', error);
         departments = getDefaultDepartments();
-        festivalInfo = getDefaultFestivalInfo();
         updatePageContent();
     }
 }
@@ -306,8 +317,8 @@ function getDefaultDepartments() {
 }
 function getDefaultFestivalInfo() {
     return {
-        name: "TANTRA 2024",
-        dates: "October 15-18, 2024",
+            name: "TANTRA 2025",
+            dates: "October 15-18, 2025",
         tagline: "The ultimate battleground for tech innovators, creators, and visionaries",
         stats: {
             events: "50+",
@@ -429,7 +440,7 @@ function initCountdownTimer() {
             document.querySelector('.countdown-container').innerHTML = `
                 <div class="event-started">
                     <h3>🎉 Event Started!</h3>
-                    <p>TANTRA 2024 is now live!</p>
+                        <p>TANTRA 2025 is now live!</p>
                 </div>
             `;
             return;
@@ -605,11 +616,111 @@ async function init() {
     
     // Initialize animations and other functionality
     initTantraAnimation();
+    // Initialize gyro-based motion only for mobile/touch devices
+    const wantGyro = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    if (wantGyro) {
+        try { initGyroMotion(); } catch (e) { /* ignore */ }
+    }
+    // Mobile micro-animations
+    if (wantGyro) {
+        try { initMobileMicroAnimations(); } catch (e) { /* ignore */ }
+    }
     initCountdownTimer(); // Add this line
     setupEventListeners();
     setupSmoothScrolling();
     initScrollAnimations();
     setActiveNavigation();
+}
+
+// Small mobile-only micro animations
+function initMobileMicroAnimations() {
+    // CTA pulse
+    const ctas = document.querySelectorAll('.cta-button, .btn-primary, .btn-outline');
+    ctas.forEach((el, i) => {
+        gsap.to(el, { scale: 1.03, duration: 1.6 + (i % 2) * 0.2, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 0.6 });
+    });
+
+    // dev-card bobbing (if present)
+    const devCards = document.querySelectorAll('.dev-card');
+    devCards.forEach((card, i) => {
+        gsap.to(card, { y: 6, duration: 3 + (i % 2) * 0.2, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: i * 0.12 });
+        card.addEventListener('click', function(e) {
+            // Only flip if not clicking a link or button inside the card
+            if (e.target.closest('a,button')) return;
+            card.classList.toggle('is-flipped');
+        });
+    });
+
+    // Tap ripple for mobile
+    document.addEventListener('touchstart', function(e){
+        const t = e.touches[0];
+        if (!t) return;
+        const ripple = document.createElement('span');
+        ripple.className = 'touch-ripple';
+        ripple.style.position = 'fixed';
+        ripple.style.left = (t.clientX - 24) + 'px';
+        ripple.style.top = (t.clientY - 24) + 'px';
+        ripple.style.width = '48px';
+        ripple.style.height = '48px';
+        ripple.style.borderRadius = '50%';
+        ripple.style.background = 'rgba(255,46,146,0.12)';
+        ripple.style.pointerEvents = 'none';
+        ripple.style.zIndex = 2000;
+        document.body.appendChild(ripple);
+        gsap.to(ripple, { scale: 2.6, opacity: 0, duration: 0.7, ease: 'power2.out', onComplete(){ ripple.remove(); } });
+    }, { passive: true });
+}
+
+// Gyro-based motion for mobile devices
+function initGyroMotion() {
+    const bg = document.querySelector('.animated-bg');
+    const text = document.querySelector('.tantra-text');
+    if (!bg && !text) return;
+
+    // Helper to start listening to deviceorientation
+    const start = () => {
+        function handleOrientation(e) {
+            // alpha: rotation around z-axis (0..360)
+            // beta: rotation around x-axis (-180..180) front-to-back
+            // gamma: rotation around y-axis (-90..90) left-to-right
+            const beta = e.beta || 0; // -180..180
+            const gamma = e.gamma || 0; // -90..90
+
+            // Normalize and clamp
+            const nx = Math.max(Math.min(gamma / 30, 1), -1); // -1..1
+            const ny = Math.max(Math.min(beta / 30, 1), -1);
+
+            // Animate background and text subtlely
+            if (bg) gsap.to(bg, { x: nx * -28, y: ny * -16, rotation: nx * 2, duration: 0.45, ease: 'power3.out' });
+            if (text) gsap.to(text, { x: nx * 16, y: ny * 10, rotation: nx * 3, duration: 0.45, ease: 'power3.out' });
+        }
+
+        window.addEventListener('deviceorientation', handleOrientation, true);
+    };
+
+    // iOS requires a user gesture to grant permission
+    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+        // create an overlay prompt that asks the user to allow motion (small, unobtrusive)
+        const prompt = document.createElement('button');
+        prompt.textContent = 'Enable motion';
+        prompt.style.position = 'fixed';
+        prompt.style.left = '12px';
+        prompt.style.bottom = '12px';
+        prompt.style.zIndex = 2000;
+        prompt.className = 'btn-outline';
+        document.body.appendChild(prompt);
+        prompt.addEventListener('click', () => {
+            DeviceMotionEvent.requestPermission().then(resp => {
+                if (resp === 'granted') {
+                    start();
+                }
+                prompt.remove();
+            }).catch(() => { prompt.remove(); });
+        }, { once: true });
+    } else {
+        // Non-iOS: start listening immediately
+        start();
+    }
 }
 
 // Set active navigation based on current page

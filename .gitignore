@@ -1,0 +1,32 @@
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Distribution
+build/
+dist/
+*.egg-info/
+
+# IDEs
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and caches
+.cache
+*.log
+
+# Flask instance folder
+instance/
+
+# Firebase / service account files - do NOT commit your credentials
+service-account*.json
+techfestadmin-*-firebase-adminsdk-*.json
+firebase_sa_*.json

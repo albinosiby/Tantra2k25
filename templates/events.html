@@ -27,16 +27,16 @@
                 <h2 class="section-title">ALL <span>EVENTS</span></h2>
                 <p class="section-subtitle">Explore the complete lineup of TANTRA 2025 events</p>
             </div>
-            
             <!-- Department Tabs -->
-            <div class="department-tabs filter-tabs">
+             <button class="filter-toggle" id="filter-toggle-btn" style="display:none;"><i class="fas fa-filter"></i></button>
+             <div class="department-tabs filter-tabs" id="filter-tabs">
                 <!-- Tabs will be loaded dynamically -->
             </div>
-            
             <!-- Events Grid -->
             <div class="events-grid" id="events-container">
                 <!-- Events will be loaded dynamically -->
             </div>
+             
         </div>
     </section>
 
@@ -110,6 +110,11 @@
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <label class="form-label" for="participant-branch">Branch / Class *</label>
+                        <input type="text" id="participant-branch" class="form-input" required placeholder="Enter branch or class (e.g., CSE, 3rd Year)" />
+                    </div>
+
                     <!-- QR Code Payment Section -->
                     <div class="payment-section">
                         <div class="payment-header">
@@ -126,11 +131,11 @@
                                 <div class="qr-code-image">
                                     <!-- Replace with your actual QR code image -->
                                     <img src="images/payment-qr.png" alt="Payment QR Code" onerror="this.style.display='none'">
-                                    <div class="qr-fallback">
+                                    <!-- <div class="qr-fallback">
                                         <i class="fas fa-qrcode"></i>
                                         <span>Payment QR Code</span>
                                         <small>UPI: tantra2025@paytm</small>
-                                    </div>
+                                    </div> -->
                                 </div>
                             </div>
                         </div>
