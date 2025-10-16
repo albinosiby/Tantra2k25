@@ -15,6 +15,9 @@
 }
 html {
     scroll-behavior: smooth;
+    scroll-padding-top: 20px; /* Adds some padding when scrolling to anchor points */
+    overflow-y: scroll; /* Prevents layout shift */
+    -webkit-overflow-scrolling: touch; /* Enables smooth scrolling on iOS devices */
 }
 /* Filter toggle button for mobile */
 .filter-toggle {

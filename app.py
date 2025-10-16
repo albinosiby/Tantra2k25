@@ -438,7 +438,7 @@ def _gather_participants(dept_id: str, event_id: str = None) -> List[Dict]:
                 'email': p.get('email'),
                 'phone': p.get('phone'),
                 'college': p.get('college'),
-                'branch': p.get('branch'),
+                'branch': p.get('branch/Class'),
                 'year': p.get('year'),
                 'event_name': ev_data.get('name'),
                 'dept_name': ev_data.get('department') or ev_data.get('dept_id') or '',
@@ -490,7 +490,7 @@ def export_participants():
             'email': p.get('email', ''),
             'phone': p.get('phone', ''),
             'college': p.get('college', ''),
-            'branch': p.get('branch', ''),
+            'branch': p.get('branch/Class', ''),
             'year': p.get('year', ''),
             'event_name': p.get('event', ''),
             'dept_name': p.get('department', ''),
@@ -499,7 +499,7 @@ def export_participants():
 
     rows = sorted(rows, key=lambda r: (r.get('dept_name', ''), r.get('event_name', ''), r.get('name', '')))
 
-    headers = ['name', 'email', 'phone', 'college', 'branch', 'year', 'event_name', 'dept_name', 'transaction_id']
+    headers = ['name', 'email', 'phone', 'college', 'branch/Class', 'year', 'event_name', 'dept_name', 'transaction_id']
 
     part_dept = _sanitize(dept_name) if dept_name else 'all_departments'
     part_event = _sanitize(event_name) if event_name else 'all_events'
