@@ -1,0 +1,40 @@
+{
+  "festivalInfo": {
+    "name": "TANTRA 2025",
+    "dates": "October 24-26, 2025",
+    "tagline": "The ultimate battleground for tech innovators, creators, and visionaries"
+  },
+  "departments": [
+    { "id": "computer-science-engineering", "name": "Computer Science and Engineering", "icon": "fas fa-laptop-code" },
+    { "id": "electrical-electronics", "name": "Electrical & Electronics Engineering", "icon": "fas fa-bolt" },
+    { "id": "mechanical-engineering", "name": "Mechanical Engineering", "icon": "fas fa-cogs" }
+  ],
+  "events": [
+    {
+      "id": "1",
+      "name": "Code Wars",
+      "department": "computer-science-engineering",
+      "category": "technical",
+      "description": "Competitive programming contest.",
+      "date": "2025-10-24",
+      "time": "10:00 AM",
+      "venue": "Auditorium A",
+      "image": "https://images.unsplash.com/photo-1555066931-4365d14bab8c",
+      "participants": 120,
+      "price": 0
+    },
+    {
+      "id": "2",
+      "name": "Robo Wars",
+      "department": "mechanical-engineering",
+      "category": "technical",
+      "description": "Robotics combat event.",
+      "date": "2025-10-25",
+      "time": "2:00 PM",
+      "venue": "Open Ground",
+      "image": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e",
+      "participants": 80,
+      "price": 50
+    }
+  ]
+}

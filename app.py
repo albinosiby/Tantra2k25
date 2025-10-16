@@ -183,6 +183,26 @@ def get_event(event_id):
     return jsonify({'event': result})
 
 
+@app.route('/api/data')
+def api_data():
+    """Return normalized data for frontend (departments, events)."""
+    try:
+        from data_provider import get_data
+        data = get_data()
+        return jsonify(data)
+    except Exception as e:
+        # As a fallback, attempt to read local data file directly
+        try:
+            import json as _json, os as _os
+            data_path = _os.path.join(_os.path.dirname(__file__), 'data', 'data.json')
+            with open(data_path, 'r', encoding='utf-8') as f:
+                raw = _json.load(f)
+            # normalize minimally
+            return jsonify({'departments': raw.get('departments', []), 'events': raw.get('events', [])})
+        except Exception:
+            return jsonify({'departments': [], 'events': []})
+
+
 @app.route('/add_department', methods=['GET', 'POST'])
 def add_department():
     if request.method == 'POST':
