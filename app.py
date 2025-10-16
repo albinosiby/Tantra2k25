@@ -29,7 +29,10 @@ except Exception:
     # openpyxl is optional for static analysis; exporting xlsx uses pandas/openpyxl
     pass
 
-app = Flask(__name__)
+# Serve static assets from the project root so legacy folders like /css, /js, /images
+# continue to work without moving files into a /static directory.
+# This keeps existing template references (e.g. "css/style.css") functional.
+app = Flask(__name__, static_folder='.', static_url_path='')
 
 # Base link to use when constructing absolute URLs for saved DB links.
 curr_link = os.environ.get('CURR_LINK', "http://127.0.0.1:5000")
