@@ -29,10 +29,10 @@ except Exception:
     # openpyxl is optional for static analysis; exporting xlsx uses pandas/openpyxl
     pass
 
-# Serve static assets from the project root so legacy folders like /css, /js, /images
-# continue to work without moving files into a /static directory.
-# This keeps existing template references (e.g. "css/style.css") functional.
-app = Flask(__name__, static_folder='.', static_url_path='')
+# Use Flask's default static folder (`static/`) so assets placed in `static/` are
+# served under the `/static/` URL path. Templates already use
+# `url_for('static', filename=...)`, which will resolve to `/static/...`.
+app = Flask(__name__)
 
 # Base link to use when constructing absolute URLs for saved DB links.
 curr_link = os.environ.get('CURR_LINK', "http://127.0.0.1:5000")
@@ -145,6 +145,18 @@ def dept_events(dept_id):
             'department': ed.get('department', '')
         })
     return jsonify({'events': evs, 'dept_id': dept_id})
+
+
+@app.route('/developers.html')
+def developers_page():
+    # Render the developers page template
+    return render_template('developers.html')
+
+
+@app.route('/events.html')
+def events_page():
+    # Render the events listing page
+    return render_template('events.html')
 
 
 @app.route('/event/<event_id>', methods=['GET'])

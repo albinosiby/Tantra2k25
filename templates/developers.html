@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Developers — TANTRA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 </head>
 <body>
@@ -23,7 +23,7 @@
                 <div class="dev-card" data-index="1">
                     <div class="dev-card-inner">
                         <div class="dev-card-front">
-                            <img class="dev-photo" src="/images/albino.jpg" alt="Dev 1">
+                            <img class="dev-photo" src="{{ url_for('static', filename='images/albino.jpg') }}" alt="Dev 1">
                             <div class="dev-name">Albino Siby</div>
                             <div class="dev-role">Frontend • UI</div>
                             <div class="dev-bio">Designs delightful interfaces and leads the frontend architecture.</div>
@@ -50,7 +50,7 @@
                 <div class="dev-card" data-index="2">
                     <div class="dev-card-inner">
                         <div class="dev-card-front">
-                            <img class="dev-photo" src="/images/Jison.jpg" alt="Dev 2">
+                            <img class="dev-photo" src="{{ url_for('static', filename='images/Jison.jpg') }}" alt="Dev 2">
                             <div class="dev-name">Jison Joseph Sebastian</div>
                             <div class="dev-role">Backend • APIs</div>
                             <div class="dev-bio">Builds scalable services and maintains the API ecosystem.</div>
