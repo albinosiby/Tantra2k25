@@ -1,6 +1,8 @@
 import json
 import os
 from typing import Any, Dict
+import base64
+import re
 
 # Path to the local fallback JSON file
 DATA_PATH = os.path.join(os.path.dirname(__file__), 'data', 'data.json')
@@ -64,7 +66,50 @@ def _load_firestore() -> Dict[str, Any]:
         print('[data_provider] google-cloud-firestore import failed:', str(e))
         raise
 
-    # Prefer explicit env var if set
+    def _parse_service_account_env(text: str):
+        """Parse common encodings for a service account JSON stored in an env var.
+
+        Accepts raw JSON, escaped-newline JSON ("\\n" sequences) or base64-encoded JSON.
+        Returns a dict on success or None on failure.
+        """
+        if not text:
+            return None
+        # Try raw JSON
+        try:
+            return json.loads(text)
+        except Exception:
+            pass
+        # Try escaped-newlines
+        try:
+            maybe = text.replace('\\n', '\n')
+            return json.loads(maybe)
+        except Exception:
+            pass
+        # Try base64
+        try:
+            s = ''.join(text.split())
+            if len(s) >= 100 and re.fullmatch(r'[A-Za-z0-9+/=]+', s):
+                decoded = base64.b64decode(s).decode('utf-8')
+                return json.loads(decoded)
+        except Exception:
+            pass
+        return None
+
+    # First, check for a service account provided directly in an environment variable
+    sa_env = os.environ.get('FIREBASE_SERVICE_ACCOUNT_JSON')
+    client = None
+    if sa_env:
+        sa_info = _parse_service_account_env(sa_env)
+        if sa_info:
+            try:
+                print('[data_provider] Using FIREBASE_SERVICE_ACCOUNT_JSON from environment')
+                creds = service_account.Credentials.from_service_account_info(sa_info)
+                client = firestore.Client(credentials=creds, project=sa_info.get('project_id'))
+            except Exception as e:
+                print('[data_provider] Failed to initialize Firestore from FIREBASE_SERVICE_ACCOUNT_JSON:', str(e))
+                client = None
+
+    # Prefer explicit env var for a credentials file if set (GOOGLE_APPLICATION_CREDENTIALS)
     cred_path = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
     search_candidates = []
     if cred_path:
@@ -83,26 +128,26 @@ def _load_firestore() -> Dict[str, Any]:
         search_candidates.append(os.path.join(os.getcwd(), name))
         search_candidates.append(os.path.join(os.path.dirname(__file__), 'data', name))
 
-    # pick the first existing candidate
-    found = None
-    for c in search_candidates:
-        try:
-            if c and os.path.exists(c):
-                found = c
-                break
-        except Exception:
-            continue
+    # If we already created a client from the env var, skip file search
+    if client is None:
+        # pick the first existing candidate
+        found = None
+        for c in search_candidates:
+            try:
+                if c and os.path.exists(c):
+                    found = c
+                    break
+            except Exception:
+                continue
 
-    if found:
-        cred_path = found
-        print(f"[data_provider] Using credentials file: {cred_path}")
-    else:
-        print('[data_provider] No credentials file found in candidates; will raise')
-        raise FileNotFoundError('Firestore credentials not found. Searched candidates: ' + ','.join(search_candidates))
-
-    # Create client
-    creds = service_account.Credentials.from_service_account_file(cred_path)
-    client = firestore.Client(credentials=creds, project=creds.project_id)
+        if found:
+            cred_path = found
+            print(f"[data_provider] Using credentials file: {cred_path}")
+            creds = service_account.Credentials.from_service_account_file(cred_path)
+            client = firestore.Client(credentials=creds, project=creds.project_id)
+        else:
+            print('[data_provider] No credentials file found in candidates; will raise')
+            raise FileNotFoundError('Firestore credentials not found. Searched candidates: ' + ','.join(search_candidates))
     # First: try reading per-key collections (events, departments, festivalInfo)
     try:
         print('[data_provider] Attempting to read per-key collections from Firestore')
