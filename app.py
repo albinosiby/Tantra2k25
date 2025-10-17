@@ -309,7 +309,7 @@ def add_event():
         if dept_doc.exists:
             payment_qr_url = dept_doc.to_dict().get('qr_url', '')
 
-        status = int(request.form.get('status', '1'))
+        status = request.form.get('status', 'open')
         price = request.form.get('price', '')
         prize = request.form.get('prize', '')
 
@@ -352,8 +352,8 @@ def toggle_event_status():
     if not ev_doc.exists:
         return redirect(url_for('index'))
     ev = ev_doc.to_dict()
-    current = ev.get('status', 1)
-    new_status = 0 if current == 1 else 1
+    current = ev.get('status', 'open')
+    new_status = 'close' if current == 'open' else 'open'
     db.collection('events').document(event_id).update({'status': new_status})
     return redirect(url_for('index'))
 
@@ -717,4 +717,4 @@ def api_register():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run( host='0.0.0.0',port=port, debug=True)
