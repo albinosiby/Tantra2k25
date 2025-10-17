@@ -692,6 +692,17 @@ header {
     margin: 0 auto;
 }
 
+/* Mobile: reduce section title size for phones */
+@media (max-width: 480px) {
+    .section-title {
+        font-size: 1.6rem;
+    }
+    .section-subtitle {
+        font-size: 0.95rem;
+        max-width: 90%;
+    }
+}
+
 /* Countdown Timer Styles */
 .countdown-section {
     background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 100%);
@@ -887,6 +898,30 @@ header {
     50% {
         transform: translateY(-3px);
         opacity: 1;
+    }
+}
+
+/* Mobile tweaks: reduce countdown sizes on small screens */
+@media (max-width: 480px) {
+    .countdown-container {
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+    .countdown-number {
+        font-size: 2.8rem; /* smaller numbers for phones */
+        min-width: 72px;
+        text-shadow: 0 0 10px rgba(0,245,255,0.35), 0 0 20px rgba(157,78,221,0.2);
+    }
+    .countdown-number::after {
+        bottom: -6px;
+        height: 6px;
+        width: 90%;
+        filter: blur(3px);
+    }
+    .countdown-label {
+        font-size: 0.7rem;
+        letter-spacing: 2px;
+        margin-top: 0.6rem;
     }
 }
 
