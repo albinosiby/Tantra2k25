@@ -490,7 +490,7 @@ function createEventCard(event) {
 
     console.log('Creating event card for:', event.name, 'with ID:', eventId, 'Type:', typeof eventId);
 
-    const isOpen = event.status === 1;
+    const isOpen = event.status === 'open';
     card.classList.add('flip-card');
     // Use event.image_url if present, else event.image, else fallback
     const eventImageUrl = event.image_url && event.image_url.trim() !== '' ? event.image_url : (event.image || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80');
@@ -511,7 +511,7 @@ function createEventCard(event) {
                                         <span>Register Now</span>
                                         <i class="fas fa-arrow-right"></i>
                                     </button>`
-            : `<button class="register-btn" data-event-id="${eventId}" disabled>
+            : `<button class="register-btn" data-event-id="${eventId}" disabled style="background:#aaa;cursor:not-allowed;">
                                         <span>Registration Closed</span>
                                         <i class="fas fa-lock"></i>
                                     </button>`
