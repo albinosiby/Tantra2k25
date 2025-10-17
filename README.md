@@ -43,9 +43,9 @@ This project is ready to deploy to Render as a Python web service. The repositor
 Environment variables
 - If you want Firestore integration, you can supply credentials in two ways:
 	- Upload the JSON file to Render as a secret file and set `GOOGLE_APPLICATION_CREDENTIALS` to its path on the instance.
-	- Or, paste the entire service account JSON into the `FIREBASE_SERVICE_ACCOUNT` secret environment variable. `entrypoint.py` will automatically write it to `firebase_service_account.json` and set `GOOGLE_APPLICATION_CREDENTIALS` for you.
+	- Or, paste the entire service account JSON into the `FIREBASE_SERVICE_ACCOUNT_JSON` secret environment variable. The app (or `start.py` / `entrypoint.py`) will accept the JSON and either use it directly (no temp file required) or write it to disk for the Firebase SDK.
 
-The `entrypoint.py` supports these formats for `FIREBASE_SERVICE_ACCOUNT`:
+The repository accepts these formats for `FIREBASE_SERVICE_ACCOUNT_JSON`:
 - Raw JSON (the normal service account JSON string).
 - JSON that contains escaped newlines (it will convert `\\n` to real newlines).
 - Base64-encoded JSON (it will attempt to base64-decode the value and parse the result as JSON).

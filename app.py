@@ -61,16 +61,61 @@ app.config['UPLOAD_LOGO_FOLDER'] = UPLOAD_LOGO_FOLDER
 
 
 # -------------------- Firebase initialization --------------------
+# The app supports three ways to provide Firebase credentials:
+# 1. FIREBASE_SERVICE_ACCOUNT_JSON environment variable containing the raw JSON object
+#    (the recommended approach on Render). The var may be a JSON string, a string
+#    with escaped-newlines ("\n"), or a base64-encoded JSON blob.
+# 2. FIREBASE_CREDENTIALS_FILE pointing to a JSON file on disk (legacy / local).
+# If FIREBASE_SERVICE_ACCOUNT_JSON is set we try to parse it robustly and use
+# credentials.Certificate with the parsed dict so no temporary file is required.
 _sa_json = os.environ.get('FIREBASE_SERVICE_ACCOUNT_JSON')
 _sa_file = os.environ.get('FIREBASE_CREDENTIALS_FILE', 'techfestadmin-a2e2c-firebase-adminsdk-fbsvc-8fc9d6e2e5.json')
 
+
+def _parse_service_account_env(text: str):
+    """Try to parse common encodings of the service account JSON.
+
+    Accepts:
+    - raw JSON string (direct json.loads)
+    - escaped-newlines (replace "\\n" with real newlines then json.loads)
+    - base64-encoded JSON (heuristic length + charset check)
+    Returns a dict on success or None on failure.
+    """
+    if not text:
+        return None
+    # 1) raw JSON
+    try:
+        return json.loads(text)
+    except Exception:
+        pass
+
+    # 2) escaped newlines (common when environment panels escape newlines)
+    try:
+        maybe = text.replace('\\n', '\n')
+        return json.loads(maybe)
+    except Exception:
+        pass
+
+    # 3) base64-encoded blob (heuristic)
+    try:
+        import base64, re
+        s = ''.join(text.split())
+        if len(s) >= 100 and re.fullmatch(r'[A-Za-z0-9+/=]+', s):
+            decoded = base64.b64decode(s).decode('utf-8')
+            return json.loads(decoded)
+    except Exception:
+        pass
+
+    return None
+
+
 cred = None
 if _sa_json:
-    try:
-        sa_info = json.loads(_sa_json) if isinstance(_sa_json, str) else _sa_json
+    sa_info = _parse_service_account_env(_sa_json) if isinstance(_sa_json, str) else _sa_json
+    if sa_info:
         cred = credentials.Certificate(sa_info)
-    except Exception as e:
-        raise RuntimeError('Failed to parse FIREBASE_SERVICE_ACCOUNT_JSON: ' + str(e))
+    else:
+        raise RuntimeError('FIREBASE_SERVICE_ACCOUNT_JSON provided but could not be parsed. Provide raw JSON, escaped-newlines, or base64.')
 elif os.path.exists(_sa_file):
     cred = credentials.Certificate(_sa_file)
 else:
