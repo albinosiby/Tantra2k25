@@ -511,7 +511,7 @@ function createEventCard(event) {
                                         <span>Register Now</span>
                                         <i class="fas fa-arrow-right"></i>
                                     </button>`
-            : `<button class="register-btn" data-event-id="${eventId}" disabled style="background:#aaa;cursor:not-allowed;">
+            : `<button class="register-btn" data-event-id="${eventId}" disabled>
                                         <span>Registration Closed</span>
                                         <i class="fas fa-lock"></i>
                                     </button>`
