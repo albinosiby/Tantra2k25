@@ -406,6 +406,20 @@ header {
     margin-bottom: 0.1rem;
 }
 
+/* Large background logo behind TANTRA text */
+.hero-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70vw; /* occupy large width behind text */
+    max-width: 1200px;
+    opacity: 0.06; /* subtle watermark effect */
+    pointer-events: none;
+    z-index: 1;
+    filter: drop-shadow(0 20px 40px rgba(0,0,0,0.2));
+}
+
 .tantra-text {
     font-size: 10rem;
     font-weight: 900;
@@ -452,6 +466,10 @@ header {
     .tantra-animation-container {
         transform: translateY(-8vh);
     }
+    .hero-logo {
+        width: 110vw;
+        opacity: 0.10; /* slightly brighter on tablets/large phones */
+    }
 }
 
 @media (max-width: 480px) {
@@ -460,9 +478,13 @@ header {
     }
     /* lift even more and reduce height on small mobile screens */
     .tantra-animation-container {
-        transform: translateY(-2vh);
-        height: 50vh;
+        transform: translateY(-1vh);
+        height: 30vh;
         min-height: 100px;
+    }
+    .hero-logo {
+        width: 140vw;
+        opacity: 0.12; /* brighter on small phones */
     }
 }
 /* Enhanced Hero Section */
@@ -1139,19 +1161,56 @@ header {
     margin-top: 2rem;
 }
 
+/* Phone-only adjustments: make dept cards narrower on small viewports */
+@media (max-width: 600px) {
+    .departments-grid {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 1rem;
+    }
+    .department-card {
+        padding: 1rem 0.9rem;
+        border-radius: 12px;
+        max-width: 320px;
+        margin: 0.4rem auto;
+    }
+    .department-icon {
+        font-size: 1.6rem;
+        margin-bottom: 0.8rem;
+    }
+    .department-card h3 {
+        font-size: 1rem;
+    }
+}
+
+
 .department-card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 20px;
-    padding: 2.5rem 2rem;
-    text-align: center;
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    text-decoration: none;
-    color: inherit;
-    display: block;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        padding: 2.5rem 2rem;
+        text-align: center;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    animation: floatCard 3.5s ease-in-out infinite;
+    will-change: transform;
+    /* on desktop allow cards to size by grid; mobile-only sizing handled via media query */
+}
+
+@keyframes floatCard {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-12px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
 }
 
 .department-card::before {

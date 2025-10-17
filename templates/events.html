@@ -83,22 +83,6 @@
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label" for="participant-department">Department *</label>
-                            <select id="participant-department" class="form-input" required>
-                                <option value="">Select Your Department</option>
-                                <option value="Applied Electronics & Instrumentation Engineering">Applied Electronics & Instrumentation Engineering</option>
-                                <option value="Civil Engineering">Civil Engineering</option>
-                                <option value="Computer Science and Engineering (Cyber Security)">Computer Science and Engineering (Cyber Security)</option>
-                                <option value="Computer Science & Design">Computer Science & Design</option>
-                                <option value="Electrical & Electronics Engineering">Electrical & Electronics Engineering</option>
-                                <option value="Artificial Intelligence and Data Science">Artificial Intelligence and Data Science</option>
-                                <option value="Computer Science and Engineering and Business Systems">Computer Science and Engineering and Business Systems</option>
-                                <option value="Computer Science and Engineering">Computer Science and Engineering</option>
-                                <option value="Electronics & Communication Engineering">Electronics & Communication Engineering</option>
-                                <option value="Mechanical Engineering">Mechanical Engineering</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
                             <label class="form-label" for="participant-year">Year *</label>
                             <select id="participant-year" class="form-input" required>
                                 <option value="">Select Year</option>
@@ -157,8 +141,9 @@
                             <i class="fas fa-receipt"></i>
                             Transaction ID *
                         </label>
-                        <input type="text" id="transaction-id" class="form-input" required placeholder="Enter UPI transaction ID from payment receipt">
+                        <input type="text" id="transaction-id" class="form-input" required placeholder="Enter UPI transaction ID from payment receipt" pattern="^[A-Za-z0-9]{12,16}$">
                         <small class="input-help">Paste the Transaction ID from your payment confirmation</small>
+                        <div class="field-error" id="transaction-id-error" style="display:none;color:#ff8c8c;margin-top:6px;font-size:0.9rem;">Transaction ID must be 12–16 alphanumeric characters.</div>
                     </div>
                     
                     <div class="form-footer">

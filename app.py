@@ -594,6 +594,82 @@ def fix_events():
     return render_template('fix_events.html', events=problematic, departments=dept_list, message=message)
 
 
+# -------------------- Registration API --------------------
+@app.route('/api/register', methods=['POST'])
+def api_register():
+    try:
+        data = request.get_json(force=True)
+        if not data:
+            return jsonify({'status': 'fail', 'error': 'No data provided'}), 400
+
+        # Extract participant info with flexible keys
+        participant = {
+            'name': (data.get('name') or data.get('participant-name') or '').strip(),
+            'email': (data.get('email') or data.get('participant-email') or '').strip(),
+            'phone': (data.get('phone') or data.get('participant-phone') or '').strip(),
+            'college': (data.get('college') or data.get('participant-college') or '').strip(),
+            'branch/Class': (data.get('branch/Class') or data.get('participant-branch') or '').strip(),
+            'year': (data.get('year') or data.get('participant-year') or '').strip(),
+            'event': (data.get('event_name') or data.get('event') or '').strip(),
+            'department': '',
+            'transactionId': (data.get('transaction_id') or data.get('transactionId') or '').strip(),
+            'created_at': datetime.utcnow()
+        }
+
+    # If event_id provided, resolve its department and set participant['department'] to department name
+        event_id = str(data.get('event_id') or data.get('eventId') or '').strip()
+        if event_id:
+            try:
+                ev_doc = db.collection('events').document(event_id).get()
+                if ev_doc.exists:
+                    ev = ev_doc.to_dict()
+                    dept_id = ev.get('department') or ev.get('dept_id') or ev.get('department_id')
+                    dept_name = ''
+                    if dept_id:
+                        # Try to resolve department document to a human-readable name
+                        try:
+                            dept_doc = db.collection('departments').document(str(dept_id)).get()
+                            if dept_doc.exists:
+                                dept_name = dept_doc.to_dict().get('name', '')
+                            else:
+                                # Fallback: use dept_id itself (maybe it's already a name)
+                                dept_name = str(dept_id)
+                        except Exception:
+                            dept_name = str(dept_id)
+                    participant['department'] = dept_name
+            except Exception:
+                # if any error occurs resolving event/department, leave department blank
+                participant['department'] = ''
+
+        # Save participant (by email or phone as doc id if possible)
+        # Server-side transaction ID validation: must be 12-16 alphanumeric
+        import re
+        tx = (data.get('transaction_id') or data.get('transactionId') or '').strip()
+        if tx:
+            if not re.fullmatch(r'^[A-Za-z0-9]{12,16}$', tx):
+                return jsonify({'status': 'fail', 'error': 'Invalid transaction_id format'}), 400
+        participant['transactionId'] = tx
+        doc_id = participant.get('email') or participant.get('phone') or None
+        if doc_id:
+            db.collection('participants').document(doc_id).set(participant)
+        else:
+            db.collection('participants').add(participant)
+
+        # Save registration (event-wise, for analytics)
+        reg = {
+            'event_id': event_id,
+            'participant_email': participant.get('email', ''),
+            'participant_id': doc_id,
+            'timestamp': datetime.utcnow(),
+            'transaction_id': (data.get('transaction_id') or data.get('transactionId') or '').strip(),
+        }
+        db.collection('registrations').add(reg)
+
+        return jsonify({'status': 'ok', 'saved': True})
+    except Exception as e:
+        return jsonify({'status': 'fail', 'error': str(e)}), 500
+
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=True)

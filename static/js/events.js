@@ -16,7 +16,7 @@ function initializeDOMElements() {
     closeModal = document.querySelector('.close-modal');
     navToggle = document.querySelector('.nav-toggle');
     navMenu = document.querySelector('.nav-menu');
-    
+
     console.log('DOM Elements initialized:');
     console.log('- eventsContainer:', eventsContainer);
     console.log('- registrationModal:', registrationModal);
@@ -31,7 +31,7 @@ function testModal() {
     console.log('Registration modal:', registrationModal);
     console.log('Event name input:', eventNameInput);
     console.log('Available events:', events);
-    
+
     if (events.length > 0) {
         console.log('Opening modal with event:', events[0]);
         openRegistrationModal(events[0].id);
@@ -55,7 +55,7 @@ function testEvents() {
     console.log('Events loaded:', events);
     console.log('Departments loaded:', departments);
     console.log('Events container:', eventsContainer);
-    
+
     renderEvents();
 }
 
@@ -71,12 +71,12 @@ function inspectEventCards() {
     console.log('=== INSPECTING EVENT CARDS ===');
     const eventCards = document.querySelectorAll('.event-card');
     console.log('Total event cards found:', eventCards.length);
-    
+
     eventCards.forEach((card, index) => {
         const registerBtn = card.querySelector('.register-btn');
         const eventTitle = card.querySelector('.event-title')?.textContent;
         const dataEventId = registerBtn?.getAttribute('data-event-id');
-        
+
         console.log(`Card ${index + 1}:`, {
             eventName: eventTitle,
             registerButtonExists: !!registerBtn,
@@ -84,7 +84,7 @@ function inspectEventCards() {
             dataEventIdType: typeof dataEventId,
             buttonHTML: registerBtn?.outerHTML
         });
-        
+
         // Also log the entire card HTML for deep inspection
         console.log(`Card ${index + 1} full HTML:`, card.outerHTML);
     });
@@ -216,7 +216,7 @@ function getDefaultDepartments() {
             color: "#ff6f00"
         },
         {
-            id: "civil-engineering", 
+            id: "civil-engineering",
             name: "Civil Engineering",
             icon: "fas fa-building",
             description: "Structural design, surveying, geotechnical, and construction engineering projects",
@@ -231,7 +231,7 @@ function getDefaultDepartments() {
         },
         {
             id: "computer-science-design",
-            name: "Computer Science & Design", 
+            name: "Computer Science & Design",
             icon: "fas fa-paint-brush",
             description: "UI/UX, design thinking, creative computing, and human–computer interaction",
             color: "#ff9e00"
@@ -240,18 +240,18 @@ function getDefaultDepartments() {
             id: "electrical-electronics",
             name: "Electrical & Electronics Engineering",
             icon: "fas fa-bolt",
-            description: "Power systems, circuits, renewable energy, and electrical automation", 
+            description: "Power systems, circuits, renewable energy, and electrical automation",
             color: "#ffd60a"
         },
         {
             id: "ai-data-science",
             name: "Artificial Intelligence and Data Science",
-            icon: "fas fa-brain", 
+            icon: "fas fa-brain",
             description: "Machine learning, neural networks, data analytics, and AI-driven innovations",
             color: "#00b4d8"
         },
         {
-            id: "cse-business-systems", 
+            id: "cse-business-systems",
             name: "Computer Science and Engineering (Business Systems)",
             icon: "fas fa-briefcase",
             description: "Technology management, data-driven decision making, and business analytics",
@@ -266,7 +266,7 @@ function getDefaultDepartments() {
         },
         {
             id: "electronics-communication",
-            name: "Electronics & Communication Engineering", 
+            name: "Electronics & Communication Engineering",
             icon: "fas fa-satellite-dish",
             description: "Analog and digital communication, VLSI, signal processing, and IoT systems",
             color: "#00b8a9"
@@ -284,11 +284,11 @@ function getDefaultDepartments() {
 // Update page content with loaded data
 function updatePageContent() {
     console.log('Updating page content...');
-    
+
     // Check if we're on main page or events page
     const isEventsPage = window.location.pathname.includes('events.html');
     console.log('Is events page:', isEventsPage);
-    
+
     if (isEventsPage) {
         // Events page - render department tabs and events
         console.log('Rendering events page content');
@@ -378,12 +378,12 @@ function updateURLParameter(key, value) {
 // Add function to reset page title when showing all events
 function resetPageTitle() {
     document.title = 'All Events - TANTRA 2025';
-    
+
     const heroTitle = document.querySelector('.section-title');
     if (heroTitle) {
         heroTitle.innerHTML = 'ALL <span>EVENTS</span>';
     }
-    
+
     const subtitle = document.querySelector('.section-subtitle');
     if (subtitle) {
         subtitle.textContent = 'Explore the complete lineup of TANTRA 2025 events';
@@ -392,7 +392,7 @@ function resetPageTitle() {
 function updatePageTitle(departmentName) {
     if (departmentName && departmentName !== 'all') {
         document.title = `${departmentName} Events - TANTRA 2025`;
-        
+
         // Also update the hero section title if it exists
         const heroTitle = document.querySelector('.section-title');
         if (heroTitle) {
@@ -401,7 +401,7 @@ function updatePageTitle(departmentName) {
                 heroTitle.innerHTML = `${departmentName} <span>EVENTS</span>`;
             }
         }
-        
+
         // Update the subtitle to show filtered view
         const subtitle = document.querySelector('.section-subtitle');
         if (subtitle) {
@@ -415,20 +415,20 @@ function renderEvents() {
         console.error('Events container not found');
         return;
     }
-    
+
     console.log('Rendering events for department:', currentDepartment);
     console.log('Total events available:', events.length);
-    
-    const filteredEvents = currentDepartment === 'all' 
-        ? events 
+
+    const filteredEvents = currentDepartment === 'all'
+        ? events
         : events.filter(event => {
             const matches = event.department === currentDepartment;
             console.log(`Event: ${event.name}, Department: ${event.department}, Matches: ${matches}`);
             return matches;
         });
-    
+
     console.log('Filtered events count:', filteredEvents.length);
-    
+
     // When filtered by department, show only the events grid (no department card/header)
     if (currentDepartment !== 'all' && filteredEvents.length > 0) {
         eventsContainer.innerHTML = `
@@ -451,7 +451,7 @@ function renderEvents() {
         console.log('Filtered department events rendered successfully (no department card)');
         return;
     }
-    
+
     // Default rendering for "All Events"
     if (filteredEvents.length === 0) {
         eventsContainer.innerHTML = `
@@ -463,14 +463,14 @@ function renderEvents() {
         `;
         return;
     }
-    
+
     eventsContainer.innerHTML = '';
-    
+
     filteredEvents.forEach(event => {
         const eventCard = createEventCard(event);
         eventsContainer.appendChild(eventCard);
     });
-    
+
     // Animate the cards after they're rendered
     setTimeout(animateEventCards, 100);
     console.log('Events rendered successfully');
@@ -481,21 +481,23 @@ function createEventCard(event) {
     const card = document.createElement('div');
     card.className = 'event-card';
     card.setAttribute('data-category', event.category);
-    
+
     const priceText = event.price === 0 ? 'FREE' : `₹${event.price}`;
     const department = departments.find(dept => dept.id === event.department);
-    
+
     // IMPORTANT: Ensure event.id is properly handled
     const eventId = event.id;
-    
+
     console.log('Creating event card for:', event.name, 'with ID:', eventId, 'Type:', typeof eventId);
-    
-        const isOpen = event.status === 1;
-        card.classList.add('flip-card');
-        card.innerHTML = `
+
+    const isOpen = event.status === 1;
+    card.classList.add('flip-card');
+    // Use event.image_url if present, else event.image, else fallback
+    const eventImageUrl = event.image_url && event.image_url.trim() !== '' ? event.image_url : (event.image || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80');
+    card.innerHTML = `
             <div class="flip-card-inner">
                 <div class="flip-card-front">
-                    <img src="${event.image}" alt="${event.name}" class="event-image" loading="lazy"
+                    <img src="${eventImageUrl}" alt="${event.name}" class="event-image" loading="lazy"
                         onerror="this.src='https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80'">
                     <div class="event-content">
                         <h3 class="event-title">${event.name}</h3>
@@ -505,11 +507,11 @@ function createEventCard(event) {
                         </div>
                         <div class="event-actions" style="display:flex;gap:8px;">
                             ${isOpen
-                                ? `<button class="register-btn" data-event-id="${eventId}">
+            ? `<button class="register-btn" data-event-id="${eventId}">
                                         <span>Register Now</span>
                                         <i class="fas fa-arrow-right"></i>
                                     </button>`
-                                : `<button class="register-btn" data-event-id="${eventId}" disabled style="background:#aaa;cursor:not-allowed;">
+            : `<button class="register-btn" data-event-id="${eventId}" disabled style="background:#aaa;cursor:not-allowed;">
                                         <span>Registration Closed</span>
                                         <i class="fas fa-lock"></i>
                                     </button>`
@@ -518,65 +520,127 @@ function createEventCard(event) {
                         </div>
                     </div>
                 </div>
-                <div class="flip-card-back" style="background: linear-gradient(145deg, #121428, #1a1c2e); color: #ffffff; border-radius: 20px; padding: 26px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; height: 100%; transition: all 0.3s ease;">
-  <div class="event-details-content" style="display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 400px; text-align: left;">
+               <div class="flip-card-back" style="
+  background: linear-gradient(145deg, rgba(18,20,40,0.95), rgba(26,28,46,0.95)), 
+              url('${eventImageUrl}'); 
+  background-size: cover;
+  background-position: center;
+  color: #ffffff;
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.45), inset 0 0 10px rgba(255,255,255,0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 350px;
+  height: 400px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(6px);
+">
 
-        <div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: center; font-size: 1rem; color: #ffe066; justify-content: center;">
-            <span style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.07); padding: 4px 10px; border-radius: 8px; font-weight: 600;">
-                <i class="fas fa-trophy" style="color: #ffd700;"></i> Prize: ${event.prize || '—'}
-            </span>
-            
-        </div>
+  <!-- 📋 Grid Section -->
+  <div class="event-grid" style="
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 16px;
+    font-size: 0.9rem;
+    color: #c8c8e5;
+    margin-bottom: 10px;
+  ">
 
-    <div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: center; font-size: 1rem; color: #c8c8e5;">
+    <!-- 🎖 Prize -->
+    <span style="
+      grid-column: span 2;
+      justify-self: center;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.08);
+      padding: 6px 14px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;s
+      color: #ffe066;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    ">
+      <i class="fas fa-trophy" style="color: #ffd700;"></i>
+      Prize: ${event.prize || '—'}
+    </span>
+
+    <!-- 👤 Coordinator -->
+    <div style="display: flex; flex-direction: column; gap: 6px;">
       <span style="display: flex; align-items: center; gap: 6px;">
-        <i class="fas fa-user" style="color: #7dd3fc;"></i> 
-        <strong>Coordinator:</strong> ${event.coordinator || ''}
+        <i class="fas fa-user" style="color: #7dd3fc;"></i>
+        <strong>Coordinator</strong>
       </span>
-      <span style="display: flex; align-items: center; gap: 6px;">
-        <i class="fas fa-phone" style="color: #7dd3fc;"></i> ${event.coordinatorPhone || ''}
-      </span>
+      <span style="padding-left: 22px; color: #e0e7ff;">${event.coordinator || ''}</span>
     </div>
 
-    <div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: center; font-size: 1rem; color: #c8c8e5;">
-      <span style="display: flex; align-items: center; gap: 6px;">
-        <i class="fas fa-map-marker-alt" style="color: #7dd3fc;"></i> 
-        <strong>Venue:</strong> ${event.venue || ''}
+    <!-- ☎ Phone -->
+    <div style="display: flex; flex-direction: column; gap: 6px;">  
+        <span style="display: flex; align-items: center; gap: 6px;">
+        <i class="fas fa-phone" style="color: #7dd3fc;"></i>
+        <strong>Phone</strong>
       </span>
-      <span style="display: flex; align-items: center; gap: 6px;">
-        <i class="fas fa-clock" style="color: #7dd3fc;"></i> 
-        <strong>Time:</strong> ${event.time || ''}
-      </span>
+      <span style="padding-left: 22px; color: #e0e7ff;">${event.coordinatorPhone || ''}</span>
     </div>
 
-    <div class="event-description" style="margin-top: 8px; line-height: 1.6; color: #d6d6f5; font-size: 1rem; background: rgba(255,255,255,0.05); padding: 12px 16px; border-radius: 12px;">
-      ${event.description || ''}
-    </div>      
+    <!-- 📍 Venue -->
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <span style="display: flex; align-items: center; gap: 6px;">
+        <i class="fas fa-map-marker-alt" style="color: #7dd3fc;"></i>
+        <strong>Venue</strong>
+      </span>
+      <span style="padding-left: 22px; color: #e0e7ff;">${event.venue || ''}</span>
+    </div>
+
+    <!-- ⏰ Time -->
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <i class="fas fa-clock" style="color: #7dd3fc;"></i>
+      <strong>Time:</strong> <span style="color: #e0e7ff;">${event.time || ''}</span>
+    </div>
 
   </div>
+
+  <!-- 📝 Description -->
+  <div class="event-description" style="
+    flex-grow: 1;
+    overflow-y: auto;
+    line-height: 1.5;
+    color: #d6d6f5;
+    font-size: 0.88rem;
+    background: rgba(255,255,255,0.07);
+    padding: 10px 12px;
+    border-radius: 10px;
+    box-shadow: inset 0 0 6px rgba(255,255,255,0.05);
+  ">
+    ${event.description || ''}
+  </div>
+
 </div>
 
-                </div>
+
             </div>
+        </div>
         `;
 
-        // Flip logic
-        const inner = card.querySelector('.flip-card-inner');
-        const detailsBtns = card.querySelectorAll('.details-btn');
-        detailsBtns.forEach(btn => {
-            btn.addEventListener('click', e => {
-                e.stopPropagation();
-                inner.classList.toggle('flipped');
-            });
+    // Flip logic
+    const inner = card.querySelector('.flip-card-inner');
+    const detailsBtns = card.querySelectorAll('.details-btn');
+    detailsBtns.forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            inner.classList.toggle('flipped');
         });
-        card.addEventListener('click', e => {
-            // Only flip if not clicking a button
-            if (!e.target.classList.contains('register-btn') && !e.target.classList.contains('details-btn')) {
-                inner.classList.toggle('flipped');
-            }
-        });
-        return card;
-    
+    });
+    card.addEventListener('click', e => {
+        // Only flip if not clicking a button
+        if (!e.target.classList.contains('register-btn') && !e.target.classList.contains('details-btn')) {
+            inner.classList.toggle('flipped');
+        }
+    });
+    return card;
+
     return card;
 }
 
@@ -595,17 +659,17 @@ function formatDate(dateString) {
 function animateEventCards() {
     const eventCards = document.querySelectorAll('.event-card');
     console.log('Animating event cards:', eventCards.length);
-    
+
     // Reset animations when filtering
     eventCards.forEach(card => {
         card.style.animation = 'none';
         card.style.opacity = '0';
         card.style.transform = 'translateY(50px) scale(0.9)';
     });
-    
+
     // Trigger reflow
     void eventCards[0]?.offsetHeight;
-    
+
     // Apply animations with delays
     eventCards.forEach((card, index) => {
         card.style.animation = `
@@ -619,12 +683,12 @@ function animateEventCards() {
 // Setup event listeners - FIXED VERSION
 function setupEventListeners() {
     console.log('Setting up event listeners...');
-    
+
     // Event registration buttons - use event delegation with better targeting
     document.addEventListener('click', (e) => {
         // Try multiple ways to find the register button
         let registerBtn = e.target.closest('.register-btn');
-        
+
         if (!registerBtn) {
             // If clicking on the icon inside the button
             const icon = e.target.closest('.register-btn i');
@@ -633,21 +697,21 @@ function setupEventListeners() {
                 registerBtn = (icon || text).closest('.register-btn');
             }
         }
-        
+
         if (registerBtn) {
             console.log('Register button clicked!');
             console.log('Button element:', registerBtn);
             console.log('All data attributes:', registerBtn.dataset);
-            
+
             // Get the data-event-id attribute
             const eventId = registerBtn.getAttribute('data-event-id');
             console.log('Event ID from attribute:', eventId, 'Type:', typeof eventId);
-            
+
             if (eventId && eventId !== 'undefined' && eventId !== 'null') {
                 openRegistrationModal(eventId);
             } else {
                 console.error('Event ID is undefined or invalid:', eventId);
-                
+
                 // Fallback: try to find event by name
                 const eventCard = registerBtn.closest('.event-card');
                 if (eventCard) {
@@ -661,7 +725,7 @@ function setupEventListeners() {
                         }
                     }
                 }
-                
+
                 // Ultimate fallback: use first event
                 if (events.length > 0) {
                     console.log('Using first event as fallback');
@@ -672,7 +736,7 @@ function setupEventListeners() {
             }
         }
     });
-    
+
     // Modal close
     if (closeModal) {
         closeModal.addEventListener('click', closeRegistrationModal);
@@ -680,7 +744,7 @@ function setupEventListeners() {
     } else {
         console.error('Close modal button not found');
     }
-    
+
     if (registrationModal) {
         registrationModal.addEventListener('click', (e) => {
             if (e.target === registrationModal) {
@@ -688,7 +752,7 @@ function setupEventListeners() {
             }
         });
     }
-    
+
     // Form submission
     if (registrationForm) {
         registrationForm.addEventListener('submit', handleRegistration);
@@ -696,13 +760,13 @@ function setupEventListeners() {
     } else {
         console.error('Registration form not found');
     }
-    
+
     // Navigation toggle
     if (navToggle && navMenu) {
         navToggle.addEventListener('click', toggleNavigation);
         console.log('Navigation toggle listener added');
     }
-    
+
     console.log('Event listeners setup complete');
 }
 
@@ -711,7 +775,7 @@ function openRegistrationModal(eventId) {
     console.log('=== OPENING REGISTRATION MODAL ===');
     console.log('Event ID received:', eventId);
     console.log('Type of eventId:', typeof eventId);
-    
+
     // Convert to number and find event
     let numericId;
     if (typeof eventId === 'string') {
@@ -724,28 +788,28 @@ function openRegistrationModal(eventId) {
         console.error('Invalid event ID type:', typeof eventId);
         numericId = events[0]?.id || 1; // Use first event as fallback
     }
-    
+
     console.log('Final numeric ID:', numericId);
     console.log('All available events:', events);
-    
+
     const event = events.find(e => e.id === numericId);
-    
+
     console.log('Found event:', event);
     console.log('Modal element exists:', !!registrationModal);
     console.log('Event name input exists:', !!eventNameInput);
-    
+
     if (event && registrationModal && eventNameInput) {
         eventNameInput.value = event.name;
         // set QR code in modal based on event's department
         updateModalQr(event.department);
         registrationModal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
-        
+
         // Add entrance animation
         setTimeout(() => {
             registrationModal.classList.add('active');
         }, 10);
-        
+
         console.log('✅ Modal opened successfully for event:', event.name);
     } else {
         console.error('❌ Failed to open modal:', {
@@ -755,7 +819,7 @@ function openRegistrationModal(eventId) {
             eventsCount: events.length,
             eventId: numericId
         });
-        
+
         // Enhanced fallback
         if (!event) {
             // Try to find any event to use as fallback
@@ -840,22 +904,37 @@ function closeRegistrationModal() {
 function handleRegistration(e) {
     e.preventDefault();
     console.log('Form submission started');
-    
+
+    // Validate transaction ID (12-16 alphanumeric)
+    const txField = document.getElementById('transaction-id');
+    const txError = document.getElementById('transaction-id-error');
+    const txVal = txField?.value?.trim() || '';
+    const txRe = /^[A-Za-z0-9]{12,16}$/;
+    if (!txRe.test(txVal)) {
+        if (txError) {
+            txError.style.display = 'block';
+        }
+        if (txField) txField.focus();
+        return; // stop submission
+    } else {
+        if (txError) txError.style.display = 'none';
+    }
+
+    const selectedEvent = events.find(e => e.name === (eventNameInput ? eventNameInput.value : '')) || {};
     const formData = {
-        event: eventNameInput ? eventNameInput.value : 'Unknown Event',
+        event_name: selectedEvent.name || (eventNameInput ? eventNameInput.value : 'Unknown Event'),
+        event_id: selectedEvent.id || '',
         name: document.getElementById('participant-name')?.value || '',
         email: document.getElementById('participant-email')?.value || '',
         phone: document.getElementById('participant-phone')?.value || '',
         college: document.getElementById('participant-college')?.value || '',
-        department: document.getElementById('participant-department')?.value || '',
         year: document.getElementById('participant-year')?.value || '',
-        // send branch/Class as requested
         'branch/Class': document.getElementById('participant-branch')?.value || '',
-        transactionId: document.getElementById('transaction-id')?.value || ''
+        transaction_id: txVal
     };
-    
+
     console.log('Form data:', formData);
-    
+
     // Show loading state
     const submitBtn = registrationForm?.querySelector('.submit-btn');
     if (submitBtn) {
@@ -869,23 +948,23 @@ function handleRegistration(e) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'ok' && data.saved) {
-                showNotification('Registration successful! Check your email for confirmation.', 'success');
-                if (registrationForm) registrationForm.reset();
-                closeRegistrationModal();
-            } else {
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'ok' && data.saved) {
+                    showNotification('Registration successful! Check your email for confirmation.', 'success');
+                    if (registrationForm) registrationForm.reset();
+                    closeRegistrationModal();
+                } else {
+                    showNotification('Registration failed. Please try again.', 'error');
+                }
+            })
+            .catch(err => {
                 showNotification('Registration failed. Please try again.', 'error');
-            }
-        })
-        .catch(err => {
-            showNotification('Registration failed. Please try again.', 'error');
-        })
-        .finally(() => {
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        });
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
     }
 }
 
@@ -906,9 +985,9 @@ function showNotification(message, type = 'info') {
             <span>${message}</span>
         </div>
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     setTimeout(() => notification.classList.add('show'), 10);
     setTimeout(() => {
         notification.classList.remove('show');
@@ -945,7 +1024,7 @@ function initScrollAnimations() {
             }
         });
     }, { threshold: 0.1 });
-    
+
     // Observe event cards
     document.querySelectorAll('.event-card').forEach(card => {
         observer.observe(card);
@@ -956,7 +1035,7 @@ function initScrollAnimations() {
 window.addEventListener('scroll', () => {
     const header = document.querySelector('header');
     const scrollY = window.scrollY;
-    
+
     if (scrollY > 100) {
         header.style.background = 'rgba(10, 10, 26, 0.98)';
         header.style.backdropFilter = 'blur(20px)';
@@ -967,24 +1046,24 @@ window.addEventListener('scroll', () => {
 });
 async function init() {
     console.log('=== INITIALIZING APPLICATION ===');
-    
+
     // Initialize DOM elements first
     initializeDOMElements();
-    
+
     // Start loading data
     await loadData();
-    
+
     // Enhanced department parameter handling from URL
     const urlParams = new URLSearchParams(window.location.search);
     const departmentParam = urlParams.get('department');
-    
+
     if (departmentParam) {
         // Validate department exists
         const validDepartment = departments.find(dept => dept.id === departmentParam);
         if (validDepartment) {
             currentDepartment = departmentParam;
             console.log('Department from URL parameter:', currentDepartment);
-            
+
             // Update page title to show filtered department
             updatePageTitle(validDepartment.name);
         } else {
@@ -992,15 +1071,15 @@ async function init() {
             currentDepartment = 'all';
         }
     }
-    
+
     // Update page content
     updatePageContent();
-    
+
     // Setup event listeners
     setupEventListeners();
     setupSmoothScrolling();
     initScrollAnimations();
-    
+
     console.log('=== APPLICATION INITIALIZED SUCCESSFULLY ===');
     console.log('Current department:', currentDepartment);
 }

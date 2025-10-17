@@ -412,7 +412,6 @@ function renderDepartments() {
     
     departmentsContainer.innerHTML = departments.map(dept => {
         const departmentEvents = events.filter(event => event.department === dept.id);
-        
         return `
             <a href="events.html?department=${dept.id}" class="department-card" data-department="${dept.id}">
                 <div class="department-icon" style="color: ${dept.color}">
@@ -426,6 +425,27 @@ function renderDepartments() {
             </a>
         `;
     }).join('');
+
+    // Animate department cards with GSAP
+    const cards = document.querySelectorAll('.department-card');
+    gsap.set(cards, {opacity: 0, y: 60, scale: 0.95});
+    gsap.to(cards, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.8,
+        stagger: 0.12,
+        ease: 'power3.out'
+    });
+
+    // Add uneven float animation delays for each card
+    cards.forEach((card, i) => {
+        // Use a random or index-based delay for uneven effect
+        const delay = (i % 2 === 0)
+            ? (Math.random() * 1.5)
+            : (0.5 + Math.random() * 1.5);
+        card.style.animationDelay = delay.toFixed(2) + 's';
+    });
 }
 // Countdown Timer for October 24, 2024
 function initCountdownTimer() {
