@@ -158,7 +158,15 @@ def index():
             'status': ed.get('status', 1)
         })
 
-    dept_list = [(d.id, d.to_dict().get('name', ''), d.to_dict().get('logo_url', '')) for d in depts]
+    dept_list = [
+        {
+            'id': d.id,
+            'name': d.to_dict().get('name', ''),
+            'logo_url': d.to_dict().get('logo_url', ''),
+            'qr_code': d.to_dict().get('qr_url', '')
+        }
+        for d in depts
+    ]
 
     return render_template('index.html',
                            total_departments=total_departments,
@@ -713,7 +721,6 @@ def api_register():
         return jsonify({'status': 'ok', 'saved': True})
     except Exception as e:
         return jsonify({'status': 'fail', 'error': str(e)}), 500
-
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
