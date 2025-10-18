@@ -168,6 +168,14 @@ def index():
         for d in depts
     ]
 
+    # Ensure Computer Science Engineering appears first on the page if present
+    preferred_id = 'computer-science-engineering'
+    for i, dept in enumerate(dept_list):
+        if dept.get('id') == preferred_id:
+            # move to front
+            dept_list.insert(0, dept_list.pop(i))
+            break
+
     return render_template('index.html',
                            total_departments=total_departments,
                            total_events=total_events,
@@ -242,6 +250,14 @@ def api_data():
     try:
         from data_provider import get_data
         data = get_data()
+        # ensure department ordering: move preferred dept to front if present
+        preferred_id = 'computer-science-engineering'
+        depts = data.get('departments', []) or []
+        for i, d in enumerate(depts):
+            if (d.get('id') if isinstance(d, dict) else getattr(d, 'id', None)) == preferred_id:
+                depts.insert(0, depts.pop(i))
+                break
+        data['departments'] = depts
         return jsonify(data)
     except Exception as e:
         # As a fallback, attempt to read local data file directly
@@ -250,8 +266,16 @@ def api_data():
             data_path = _os.path.join(_os.path.dirname(__file__), 'data', 'data.json')
             with open(data_path, 'r', encoding='utf-8') as f:
                 raw = _json.load(f)
-            # normalize minimally
-            return jsonify({'departments': raw.get('departments', []), 'events': raw.get('events', [])})
+            # normalize minimally and ensure preferred dept first
+            departments = raw.get('departments', []) or []
+            preferred_id = 'computer-science-engineering'
+            for i, d in enumerate(departments):
+                # d may be dict or simple tuple/list in older data; try to handle dicts primarily
+                did = d.get('id') if isinstance(d, dict) else (d[0] if isinstance(d, (list, tuple)) and len(d) > 0 else None)
+                if did == preferred_id:
+                    departments.insert(0, departments.pop(i))
+                    break
+            return jsonify({'departments': departments, 'events': raw.get('events', [])})
         except Exception:
             return jsonify({'departments': [], 'events': []})
 
@@ -722,6 +746,7 @@ def api_register():
     except Exception as e:
         return jsonify({'status': 'fail', 'error': str(e)}), 500
 
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run( host='0.0.0.0',port=port, debug=True)
+    app.run( port=port, debug=True)
