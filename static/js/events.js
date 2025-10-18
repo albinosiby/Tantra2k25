@@ -503,7 +503,7 @@ function createEventCard(event) {
                         <h3 class="event-title">${event.name}</h3>
                         <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
                             <span class="event-group"><i class="fas fa-users"></i> ${event.category}</span>
-                            <span class="event-price">₹${event.price}</span>
+                            <span class="event-price">${priceText}</span>
                         </div>
                         <div class="event-actions" style="display:flex;gap:8px;">
                             ${isOpen
@@ -801,7 +801,8 @@ function openRegistrationModal(eventId) {
     if (event && registrationModal && eventNameInput) {
         eventNameInput.value = event.name;
         // set QR code in modal based on event's department
-        updateModalQr(event.department);
+        // Pass whether event is free so modal can hide/show payment fields
+        updateModalQr(event.department, event.price === 0);
         registrationModal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
 
@@ -828,7 +829,7 @@ function openRegistrationModal(eventId) {
                 console.log('Using fallback event:', fallbackEvent.name);
                 eventNameInput.value = fallbackEvent.name;
                 // set QR code from fallback event's department
-                updateModalQr(fallbackEvent.department);
+                updateModalQr(fallbackEvent.department, fallbackEvent.price === 0);
                 registrationModal.style.display = 'flex';
                 document.body.style.overflow = 'hidden';
                 setTimeout(() => {
@@ -840,7 +841,7 @@ function openRegistrationModal(eventId) {
                 if (registrationModal && eventNameInput) {
                     eventNameInput.value = "Technical Event";
                     // no department known for test event; clear/set default QR
-                    updateModalQr(null);
+                    updateModalQr(null, true);
                     registrationModal.style.display = 'flex';
                     document.body.style.overflow = 'hidden';
                     setTimeout(() => {
@@ -855,17 +856,54 @@ function openRegistrationModal(eventId) {
 }
 
 // Update the registration modal QR image/text from department data
-function updateModalQr(deptId) {
+function updateModalQr(deptId, isFree = false) {
+    // deptId: department id or null
+    // isFree: boolean — when true, hide payment/QR UI because event is free
     if (!registrationModal) return;
     const qrImg = registrationModal.querySelector('.qr-code-image img');
+    const qrContainer = registrationModal.querySelector('.qr-code-image');
     const qrFallbackSmall = registrationModal.querySelector('.qr-fallback small');
+    const paymentSection = registrationModal.querySelector('.payment-section');
+    const txField = document.getElementById('transaction-id');
+    const txError = document.getElementById('transaction-id-error');
+    const txLabel = registrationModal.querySelector("label[for='transaction-id']");
+    const txHelper = registrationModal.querySelector('.input-help');
 
     const defaultText = 'UPI: tantra2025@paytm';
+
+    if (isFree) {
+        // Hide entire payment section and transaction inputs for free events
+        if (paymentSection) paymentSection.style.display = 'none';
+        if (qrImg) qrImg.style.display = 'none';
+        if (qrContainer) qrContainer.style.display = 'none';
+        if (qrFallbackSmall) qrFallbackSmall.textContent = 'Free event — no payment required';
+
+        if (txField) {
+            txField.value = '';
+            txField.style.display = 'none';
+            txField.required = false;
+        }
+        if (txLabel) txLabel.style.display = 'none';
+        if (txError) txError.style.display = 'none';
+        if (txHelper) txHelper.style.display = 'none';
+        return;
+    }
+
+    // For paid events show the QR and transaction inputs
+    // Show payment section and inputs for paid events
+    if (paymentSection) paymentSection.style.display = '';
+    if (txField) {
+        txField.style.display = '';
+        txField.required = true;
+    }
+    if (txLabel) txLabel.style.display = '';
+    if (txError) txError.style.display = 'none';
+    if (txHelper) txHelper.style.display = '';
+    if (qrContainer) qrContainer.style.display = '';
 
     if (!deptId) {
         // show generic QR if available in static images or fallback text
         if (qrImg) {
-            // relative path inside static folder
             qrImg.src = '/static/images/payment-qr.png';
             qrImg.style.display = '';
         }
@@ -876,7 +914,6 @@ function updateModalQr(deptId) {
     const dept = departments.find(d => d.id === deptId);
     if (dept && dept.qr_code) {
         if (qrImg) {
-            // dept.qr_code is a filename stored in Firestore. We serve the file from static/Qr code/<filename>
             const filename = (dept.qr_code || '').trim();
             if (filename !== '') {
                 qrImg.src = encodeURI('/static/Qr code/' + filename);
@@ -915,19 +952,28 @@ function handleRegistration(e) {
     // Validate transaction ID (12-16 alphanumeric)
     const txField = document.getElementById('transaction-id');
     const txError = document.getElementById('transaction-id-error');
-    const txVal = txField?.value?.trim() || '';
+    let txVal = txField?.value?.trim() || '';
     const txRe = /^[A-Za-z0-9]{12,16}$/;
-    if (!txRe.test(txVal)) {
-        if (txError) {
-            txError.style.display = 'block';
+
+    // Determine selected event and whether payment is required
+    const selectedEvent = events.find(e => e.name === (eventNameInput ? eventNameInput.value : '')) || {};
+    const requiresPayment = !!(selectedEvent.price && Number(selectedEvent.price) > 0);
+
+    if (requiresPayment) {
+        if (!txRe.test(txVal)) {
+            if (txError) {
+                txError.style.display = 'block';
+            }
+            if (txField) txField.focus();
+            return; // stop submission
+        } else {
+            if (txError) txError.style.display = 'none';
         }
-        if (txField) txField.focus();
-        return; // stop submission
     } else {
+        // Free event: clear any tx input and hide errors
+        txVal = '';
         if (txError) txError.style.display = 'none';
     }
-
-    const selectedEvent = events.find(e => e.name === (eventNameInput ? eventNameInput.value : '')) || {};
     const formData = {
         event_name: selectedEvent.name || (eventNameInput ? eventNameInput.value : 'Unknown Event'),
         event_id: selectedEvent.id || '',
