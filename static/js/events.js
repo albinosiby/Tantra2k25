@@ -865,7 +865,8 @@ function updateModalQr(deptId) {
     if (!deptId) {
         // show generic QR if available in static images or fallback text
         if (qrImg) {
-            qrImg.src = 'images/payment-qr.png';
+            // relative path inside static folder
+            qrImg.src = '/static/images/payment-qr.png';
             qrImg.style.display = '';
         }
         if (qrFallbackSmall) qrFallbackSmall.textContent = defaultText;
@@ -875,13 +876,19 @@ function updateModalQr(deptId) {
     const dept = departments.find(d => d.id === deptId);
     if (dept && dept.qr_code) {
         if (qrImg) {
-            qrImg.src = dept.qr_code;
+            // dept.qr_code is a filename stored in Firestore. We serve the file from static/Qr code/<filename>
+            const filename = (dept.qr_code || '').trim();
+            if (filename !== '') {
+                qrImg.src = encodeURI('/static/Qr code/' + filename);
+            } else {
+                qrImg.src = '/static/images/payment-qr.png';
+            }
             qrImg.style.display = '';
         }
         if (qrFallbackSmall) qrFallbackSmall.textContent = dept.qr_code;
     } else {
         if (qrImg) {
-            qrImg.src = 'images/payment-qr.png';
+            qrImg.src = '/static/images/payment-qr.png';
             qrImg.style.display = '';
         }
         if (qrFallbackSmall) qrFallbackSmall.textContent = defaultText;
