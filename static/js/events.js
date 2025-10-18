@@ -446,8 +446,9 @@ function renderEvents() {
             });
         }
 
-        // Animate the cards after they're rendered
-        setTimeout(animateEventCards, 100);
+    // Animate the cards after they're rendered
+    try { animateEventCards(); } catch (err) { console.warn('animateEventCards immediate call failed', err); }
+    setTimeout(animateEventCards, 100);
         console.log('Filtered department events rendered successfully (no department card)');
         return;
     }
@@ -471,7 +472,8 @@ function renderEvents() {
         eventsContainer.appendChild(eventCard);
     });
 
-    // Animate the cards after they're rendered
+    // Animate the cards after they're rendered (call immediately and schedule fallback)
+    try { animateEventCards(); } catch (err) { console.warn('animateEventCards immediate call failed', err); }
     setTimeout(animateEventCards, 100);
     console.log('Events rendered successfully');
 }
@@ -497,7 +499,7 @@ function createEventCard(event) {
     card.innerHTML = `
             <div class="flip-card-inner">
                 <div class="flip-card-front">
-                    <img src="${eventImageUrl}" alt="${event.name}" class="event-image" loading="lazy"
+                    <img src="${eventImageUrl}" alt="${event.name}" class="event-image" loading="eager"
                         onerror="this.src='https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80'">
                     <div class="event-content">
                         <h3 class="event-title">${event.name}</h3>
@@ -638,20 +640,27 @@ function createEventCard(event) {
     // Only allow flip back to front when tapping near the center of back face
     inner.addEventListener('click', e => {
         if (inner.classList.contains('flipped')) {
-            // Prevent flip if clicking a button on back face (if any)
-            if (!e.target.classList.contains('register-btn') && !e.target.classList.contains('details-btn')) {
-                // Get click position relative to card
-                const rect = inner.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                // Only allow flip if click is within central 60% area
-                const xMin = rect.width * 0.2;
-                const xMax = rect.width * 0.8;
-                const yMin = rect.height * 0.2;
-                const yMax = rect.height * 0.8;
-                if (x > xMin && x < xMax && y > yMin && y < yMax) {
-                    inner.classList.remove('flipped');
-                }
+            // When card is flipped to back, prevent any clicks from reaching front face
+            e.stopPropagation();
+            
+            // If clicking any button, don't flip
+            const isButton = e.target.closest('.register-btn, .details-btn, button');
+            if (isButton) {
+                return;
+            }
+
+            // Get click position relative to card
+            const rect = inner.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Only allow flip if click is within central 60% area
+            const xMin = rect.width * 0.2;
+            const xMax = rect.width * 0.8;
+            const yMin = rect.height * 0.2;
+            const yMax = rect.height * 0.8;
+            if (x > xMin && x < xMax && y > yMin && y < yMax) {
+                inner.classList.remove('flipped');
             }
         }
     });
@@ -691,6 +700,18 @@ function animateEventCards() {
             float 6s ease-in-out ${index * 0.5}s infinite,
             pulseGlow 4s ease-in-out ${index * 0.3}s infinite
         `;
+    });
+}
+
+// Preload event images to warm browser cache and make cards render instantly
+function preloadEventImages() {
+    if (!events || events.length === 0) return;
+    events.forEach(ev => {
+        const url = ev.image_url && ev.image_url.trim() !== '' ? ev.image_url : (ev.image || '');
+        if (url) {
+            const img = new Image();
+            img.src = url;
+        }
     });
 }
 
@@ -1127,6 +1148,13 @@ async function init() {
 
     // Start loading data
     await loadData();
+
+    // Preload images to make cards appear immediately
+    try {
+        preloadEventImages();
+    } catch (err) {
+        console.warn('Image preloading failed:', err);
+    }
 
     // Enhanced department parameter handling from URL
     const urlParams = new URLSearchParams(window.location.search);

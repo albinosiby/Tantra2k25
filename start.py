@@ -10,6 +10,7 @@ import sys
 import json
 import base64
 import tempfile
+import multiprocessing
 
 _ENV_VAR = 'FIREBASE_SERVICE_ACCOUNT_JSON'
 
@@ -93,7 +94,33 @@ def main():
     bind = f'0.0.0.0:{port}'
 
     # Build arguments for exec
-    args = ['gunicorn', 'app:app', '--bind', bind, '--workers', '1']
+    # Allow configuration via environment variables:
+    # - WEB_CONCURRENCY or WORKERS: number of worker processes
+    # - THREADS: number of threads per worker (used with gthread)
+    # - GUNICORN_WORKER_CLASS: worker class (default: gthread)
+    # - GUNICORN_TIMEOUT: worker timeout in seconds (default: 30)
+    # - GUNICORN_KEEPALIVE: keep-alive seconds for gunicorn (default: 2)
+    cpu_count = 1
+    try:
+        cpu_count = multiprocessing.cpu_count()
+    except Exception:
+        pass
+
+    workers = int(os.environ.get('WEB_CONCURRENCY') or os.environ.get('WORKERS') or (cpu_count * 2 + 1))
+    threads = int(os.environ.get('THREADS') or 4)
+    worker_class = os.environ.get('GUNICORN_WORKER_CLASS') or 'gthread'
+    timeout = int(os.environ.get('GUNICORN_TIMEOUT') or 30)
+    keepalive = int(os.environ.get('GUNICORN_KEEPALIVE') or 2)
+
+    args = [
+        'gunicorn', 'app:app',
+        '--bind', bind,
+        '--workers', str(workers),
+        '--worker-class', worker_class,
+        '--threads', str(threads),
+        '--timeout', str(timeout),
+        '--keep-alive', str(keepalive)
+    ]
 
     print('[start] Execing:', ' '.join(args))
     os.execvp(args[0], args)

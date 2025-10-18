@@ -382,7 +382,7 @@ function renderFeaturedEvents() {
         const priceText = event.price === 0 ? 'FREE' : `₹${event.price}`;
         
         return `
-            <div class="featured-card" onclick="openRegistrationModal(${event.id})" style="cursor: pointer;">
+            <div class="featured-card">
                 <div class="featured-badge">
                     <i class="fas fa-star"></i> FEATURED
                 </div>
@@ -398,6 +398,12 @@ function renderFeaturedEvents() {
                         <span>${formatDate(event.date)}</span>
                     </div>
                     <div class="featured-price">${priceText}</div>
+                </div>
+                <div class="featured-actions">
+                    <button class="register-btn" data-event-id="${event.id}">
+                        <span>Register Now</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
                 </div>
             </div>
         `;
