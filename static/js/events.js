@@ -503,7 +503,7 @@ function createEventCard(event) {
                         <h3 class="event-title">${event.name}</h3>
                         <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
                             <span class="event-group"><i class="fas fa-users"></i> ${event.category}</span>
-                            <span class="event-price">₹${event.price}</span>
+                            <span class="event-price">₹${priceText}</span>
                         </div>
                         <div class="event-actions" style="display:flex;gap:8px;">
                             ${isOpen
