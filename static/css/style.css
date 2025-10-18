@@ -1,3 +1,76 @@
+@media (max-width: 300px) {
+    .flip-card {
+        min-width: 150px;
+        max-width: 98vw;
+        height: 220px;
+    }
+    .flip-card-front, .flip-card-back {
+        min-height: 120px;
+        padding: 7px 4px;
+        font-size: 0.85rem;
+        word-break: break-word;
+    }
+    .flip-card-front .card-title, .flip-card-back .card-title {
+        font-size: 1rem;
+        margin-bottom: 0.3em;
+    }
+    .flip-card-front .card-desc, .flip-card-back .card-desc {
+        font-size: 0.8rem;
+        margin-bottom: 0.2em;
+    }
+    .flip-card-front .event-actions, .flip-card-back .event-actions {
+        flex-direction: column;
+        gap: 4px;
+        width: 100%;
+        align-items: stretch;
+    }
+    .flip-card-back {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+}
+@media (max-width: 300px) {
+    html {
+        font-size: 13px;
+    }
+    .section {
+        padding: 2rem 0.3rem;
+    }
+    .section-title {
+        font-size: 1.2rem;
+        text-align: center;
+    }
+    .tantra-text {
+        font-size: 2rem;
+        text-align: center;
+    }
+    .event-actions {
+        flex-direction: column;
+        gap: 6px;
+        align-items: stretch;
+    }
+    .flip-card-front, .flip-card-back {
+        min-height: 180px;
+        padding: 0.5rem;
+    }
+    .modal-content {
+        margin: 0.2rem;
+        border-radius: 10px;
+        padding: 0.5rem;
+    }
+    .register-btn, .details-btn, .cta-button {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.7rem;
+    }
+    .filter-toggle {
+        font-size: 1rem;
+        padding: 0.3rem 0.7rem;
+    }
+    .qr-code-image {
+        max-width: 120px;
+        height: auto;
+    }
+}
 .event-actions {
     display: flex;
     gap: 10px;
