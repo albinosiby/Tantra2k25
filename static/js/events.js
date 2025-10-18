@@ -627,20 +627,34 @@ function createEventCard(event) {
     // Flip logic
     const inner = card.querySelector('.flip-card-inner');
     const detailsBtns = card.querySelectorAll('.details-btn');
+    // Only flip to back when clicking Details button
     detailsBtns.forEach(btn => {
         btn.addEventListener('click', e => {
             e.stopPropagation();
-            inner.classList.toggle('flipped');
+            inner.classList.add('flipped');
         });
     });
-    card.addEventListener('click', e => {
-        // Only flip if not clicking a button
-        if (!e.target.classList.contains('register-btn') && !e.target.classList.contains('details-btn')) {
-            inner.classList.toggle('flipped');
+
+    // Only allow flip back to front when tapping near the center of back face
+    inner.addEventListener('click', e => {
+        if (inner.classList.contains('flipped')) {
+            // Prevent flip if clicking a button on back face (if any)
+            if (!e.target.classList.contains('register-btn') && !e.target.classList.contains('details-btn')) {
+                // Get click position relative to card
+                const rect = inner.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                // Only allow flip if click is within central 60% area
+                const xMin = rect.width * 0.2;
+                const xMax = rect.width * 0.8;
+                const yMin = rect.height * 0.2;
+                const yMax = rect.height * 0.8;
+                if (x > xMin && x < xMax && y > yMin && y < yMax) {
+                    inner.classList.remove('flipped');
+                }
+            }
         }
     });
-    return card;
-
     return card;
 }
 
@@ -685,7 +699,15 @@ function setupEventListeners() {
     console.log('Setting up event listeners...');
 
     // Event registration buttons - use event delegation with better targeting
+    // Only trigger registration modal on actual register button clicks, not card taps
     document.addEventListener('click', (e) => {
+        // Ignore clicks on .flip-card-inner when flipped (back face)
+        const inner = e.target.closest('.flip-card-inner');
+        if (inner && inner.classList.contains('flipped') && !e.target.classList.contains('register-btn')) {
+            // Prevent bubbling to document for back face taps
+            return;
+        }
+
         // Try multiple ways to find the register button
         let registerBtn = e.target.closest('.register-btn');
 
