@@ -163,7 +163,8 @@ def index():
             'id': d.id,
             'name': d.to_dict().get('name', ''),
             'logo_url': d.to_dict().get('logo_url', ''),
-            'qr_code': d.to_dict().get('qr_url', '')
+            # prefer explicit 'qr_code' field, fall back to older 'qr_url'
+            'qr_code': d.to_dict().get('qr_code', d.to_dict().get('qr_url', ''))
         }
         for d in depts
     ]
@@ -306,7 +307,9 @@ def add_department():
             'name': name,
             'description': description,
             'logo_url': logo_url,
+            # store QR url in both legacy and new field names for compatibility
             'qr_url': qr_url,
+            'qr_code': qr_url,
             'created_at': datetime.utcnow()
         })
         return redirect(url_for('index'))
@@ -339,7 +342,9 @@ def add_event():
         dept_doc = db.collection('departments').document(dept_id).get()
         payment_qr_url = ''
         if dept_doc.exists:
-            payment_qr_url = dept_doc.to_dict().get('qr_url', '')
+            dept_data = dept_doc.to_dict()
+            # prefer new 'qr_code' field, fall back to legacy 'qr_url'
+            payment_qr_url = dept_data.get('qr_code', dept_data.get('qr_url', ''))
 
         status = request.form.get('status', 'open')
         price = request.form.get('price', '')
