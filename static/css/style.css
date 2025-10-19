@@ -70,6 +70,24 @@
         max-width: 120px;
         height: auto;
     }
+    /* Reduce animation intensity and shadows for very small screens to prevent flicker */
+    .tantra-text {
+        animation: none !important;
+        transition: none !important;
+        text-shadow: none !important;
+        -webkit-text-stroke: 0 !important;
+        will-change: auto !important;
+    }
+    /* disable initial bounce/float animations on tiny screens */
+    .initial-animation, .initial-video, .skip-button, .hero-badge, .bg-particle {
+        animation: none !important;
+        transition: none !important;
+    }
+    /* Reduce hero logo complexity */
+    .hero-logo {
+        filter: none;
+        opacity: 0.05;
+    }
 }
 .event-actions {
     display: flex;
