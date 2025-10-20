@@ -1,7 +1,8 @@
 @media (max-width: 300px) {
     .flip-card {
         min-width: 150px;
-        max-width: 98vw;
+        width: 98vw;
+        max-width: 350px; /* keep max width at 350 */
         height: 220px;
     }
     .flip-card-front, .flip-card-back {
@@ -154,7 +155,7 @@ html {
     position: relative;
     width: 100%; /* allow width to be set by grid or container */
     max-width: 350px; /* optional: limit max width for aesthetics */
-    height: 400px; /* fixed height for all cards */
+    height: 400px; /* default height for desktop */
     min-width: 220px;
     margin: 0 auto;
 }
@@ -176,7 +177,7 @@ html {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start; /* start at top so description expands downward */
     padding: 20px;
 }
 /* style.css - Complete Updated Version */
@@ -277,7 +278,6 @@ body.animation-playing {
 @media (max-width: 768px) {
     .skip-button {
         bottom: 20px;
-                animation: tantra-float 2.2s ease-in-out infinite alternate;
         right: 20px;
         padding: 10px 20px;
         font-size: 0.8rem;
@@ -285,8 +285,182 @@ body.animation-playing {
     
     .initial-video {
         object-fit: contain;
+    }
 }
 
+/* Mobile-specific TANTRA animation */
+/* Mobile-optimized TANTRA animation */
+@media (max-width: 768px) {
+    .tantra-animation-container {
+        height: 40vh;
+        min-height: 200px;
+        transform: translateY(-5vh);
+    }
+    
+    .tantra-text {
+        font-size: 4rem;
+        animation: none; /* Disable CSS animation, let GSAP handle it */
+        text-shadow: 
+            0 0 20px rgba(0, 245, 255, 0.7),
+            0 0 40px rgba(157, 78, 221, 0.5),
+            0 0 60px rgba(255, 46, 146, 0.3);
+        transform: scale(1);
+        /* Optimize for mobile performance */
+        will-change: transform, opacity, text-shadow;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        perspective: 1000;
+        -webkit-perspective: 1000;
+    }
+    
+    /* Reduce individual letter animations on mobile */
+    .tantra-text span {
+        display: inline-block;
+        /* Less intensive animations for mobile */
+        will-change: transform, opacity;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+    
+    /* Mobile tap animation - simplified */
+    .tantra-text:active {
+        transform: scale(0.98);
+        transition: transform 0.1s ease;
+    }
+    
+    .hero-logo {
+        width: 120vw;
+        opacity: 0.08;
+        filter: none; /* Remove expensive filter on mobile */
+    }
+}
+
+/* Extra small phone optimization */
+@media (max-width: 480px) {
+    .tantra-text {
+        font-size: 3rem;
+    }
+    
+    .tantra-animation-container {
+        height: 35vh;
+        min-height: 150px;
+        transform: translateY(-3vh);
+    }
+    
+    .hero-logo {
+        width: 140vw;
+        opacity: 0.1;
+    }
+}
+
+/* Performance optimizations for all devices */
+.tantra-text {
+    /* Hardware acceleration */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+.tantra-text span {
+    /* Hardware acceleration for letters */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+/* Extra small phone optimization */
+@media (max-width: 480px) {
+    .tantra-text {
+        font-size: 3rem;
+        animation: mobile-tantra-pulse-sm 2.5s ease-in-out infinite;
+    }
+    
+    @keyframes mobile-tantra-pulse-sm {
+        0%, 100% {
+            transform: scale(1);
+            text-shadow: 
+                0 0 15px rgba(0, 245, 255, 0.6),
+                0 0 30px rgba(157, 78, 221, 0.4),
+                0 0 45px rgba(255, 46, 146, 0.2);
+        }
+        50% {
+            transform: scale(1.03);
+            text-shadow: 
+                0 0 25px rgba(0, 245, 255, 0.8),
+                0 0 50px rgba(157, 78, 221, 0.6),
+                0 0 75px rgba(255, 46, 146, 0.4);
+        }
+    }
+    
+    /* Enhanced stretch for small phones */
+    @keyframes mobile-tantra-stretch {
+        0% {
+            transform: scaleX(1) scaleY(1);
+            letter-spacing: normal;
+        }
+        20% {
+            transform: scaleX(1.4) scaleY(0.6);
+            letter-spacing: 4px;
+        }
+        40% {
+            transform: scaleX(0.7) scaleY(1.3);
+            letter-spacing: -2px;
+        }
+        60% {
+            transform: scaleX(1.2) scaleY(0.8);
+            letter-spacing: 5px;
+        }
+        80% {
+            transform: scaleX(0.9) scaleY(1.1);
+            letter-spacing: 1px;
+        }
+        100% {
+            transform: scaleX(1) scaleY(1);
+            letter-spacing: normal;
+        }
+    }
+    
+    .tantra-animation-container {
+        height: 35vh;
+        min-height: 150px;
+    }
+}
+/* Mobile stretch particle effects */
+@media (max-width: 768px) {
+    .stretch-particle {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        background: var(--accent-cyan);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 1000;
+        opacity: 0;
+        animation: stretch-particle-fly 1.5s ease-out forwards;
+    }
+    
+    @keyframes stretch-particle-fly {
+        0% {
+            opacity: 1;
+            transform: translate(0, 0) scale(1);
+        }
+        100% {
+            opacity: 0;
+            transform: translate(var(--tx, 100px), var(--ty, -100px)) scale(0);
+        }
+    }
+    
+    /* Enhanced glow during stretch */
+    .tantra-text.stretch {
+        filter: drop-shadow(0 0 20px currentColor);
+    }
+}
+
+/* Prevent text selection during animations */
+.tantra-text {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
 @keyframes tantra-float {
     0% {
         transform: translateY(0);
@@ -299,7 +473,6 @@ body.animation-playing {
     100% {
         transform: translateY(0);
         text-shadow: 0 0 8px #00f5ff44, 0 0 0px #ff2e9244;
-    }
     }
 }
 
@@ -1618,11 +1791,18 @@ header {
 
 .event-description {
     color: var(--text-secondary);
-    margin-bottom: 1.5rem;
+    margin: 0 0 0.75rem 0; /* no top gap, small bottom gap */
     line-height: 1.5;
     transform: translateY(20px);
     opacity: 0;
     animation: slideUpFade 0.6s ease-out 0.5s forwards;
+    /* Standalone styling so description doesn't need an extra container */
+    background: rgba(255,255,255,0.03);
+    padding: 8px 10px;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    box-shadow: inset 0 0 6px rgba(255,255,255,0.02);
+    overflow: visible;
 }
 
 .event-details {
@@ -2111,8 +2291,8 @@ header {
 .footer {
     background: linear-gradient(135deg, var(--secondary-bg) 0%, #0a0a1a 100%);
     border-top: 1px solid var(--card-border);
-    padding: 4rem 0 1rem;
-    margin-top: 4rem;
+    padding: 2rem 0 0.5rem;
+    margin-top: 2rem;
     position: relative;
     overflow: hidden;
 }
@@ -2156,8 +2336,8 @@ header {
 /* Footer Main */
 .footer-main {
     text-align: center;
-    margin-bottom: 3rem;
-    padding-bottom: 2rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -2203,8 +2383,8 @@ header {
 .footer-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 3rem;
-    margin-bottom: 3rem;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .footer-column {
@@ -2232,9 +2412,10 @@ header {
 }
 
 .contact-info {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.2rem;
+    align-items: start;
 }
 
 .contact-item {
@@ -2392,14 +2573,14 @@ header {
 /* Footer Bottom */
 .footer-bottom {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 2rem;
+    padding-top: 1rem;
 }
 
 .footer-bottom-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     flex-wrap: wrap;
     gap: 1rem;
 }
@@ -2913,5 +3094,14 @@ header {
         transform: rotateY(180deg) translateZ(0) scale(1.02);
     }
     @media (max-width: 768px) {
-        .flip-card-front, .flip-card-back { min-height: 280px; }
+        .flip-card-front, .flip-card-back { min-height: 240px; }
+        .flip-card { width: 90%; max-width: 350px; height: auto; }
+    }
+
+    /* Very small screens: let card size be fluid and back face match front */
+    @media (max-width: 480px) {
+        .flip-card { width: 98vw; max-width: 350px; height: auto; }
+        .flip-card-inner { height: auto; }
+        .flip-card-front, .flip-card-back { min-height: 200px; padding: 12px; }
+        .flip-card-back { border-radius: 12px; background-size: cover; background-position: center; }
     }

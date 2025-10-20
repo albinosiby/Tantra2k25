@@ -7,7 +7,286 @@ let currentDepartment = 'all';
 // TANTRA Text Animation - Automatically plays on load
 function initTantraAnimation() {
     const text = document.querySelector('.tantra-text');
+    const isMobile = window.innerWidth <= 768;
     
+    if (isMobile) {
+        // Mobile-optimized version of desktop animation
+        initMobileOptimizedTantraAnimation(text);
+    } else {
+        // Original desktop animation
+        initDesktopTantraAnimation(text);
+    }
+}
+
+// Mobile-specific animation
+function initMobileOptimizedTantraAnimation(text) {
+    // Split text into letters for individual animation
+    const textContent = text.textContent;
+    text.innerHTML = '';
+    
+    const letters = [];
+    for (let i = 0; i < textContent.length; i++) {
+        const span = document.createElement('span');
+        span.textContent = textContent[i];
+        span.style.display = 'inline-block';
+        span.style.opacity = '0';
+        span.style.transform = 'translateY(60px) rotateX(45deg) scale(0.7)'; // Reduced values for mobile
+        text.appendChild(span);
+        letters.push(span);
+    }
+
+    // Optimized master timeline for mobile
+    const masterTL = gsap.timeline();
+
+    // 1. Simplified entrance animation
+    masterTL.to(letters, {
+        opacity: 1,
+        y: 0,
+        rotationX: 0,
+        scale: 1,
+        duration: 1.2, // Shorter duration
+        stagger: 0.08, // Faster stagger
+        ease: "back.out(1.5)" // Less intense easing
+    })
+
+    // 2. Add glow effect after entrance
+    .to(text, {
+        textShadow: "0 0 25px rgba(0, 245, 255, 0.7), 0 0 50px rgba(157, 78, 221, 0.5), 0 0 75px rgba(255, 46, 146, 0.3)",
+        duration: 0.8,
+        ease: "power2.out"
+    }, "-=0.3")
+
+    // 3. Optimized continuous animations
+    .add(() => {
+        // Reduced breathing scale
+        gsap.to(text, {
+            scale: 1.04,
+            duration: 4, // Slower for better performance
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut"
+        });
+
+        // Reduced floating motion
+        gsap.to(text, {
+            y: -8,
+            duration: 5,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut"
+        });
+
+        // Reduced horizontal sway
+        gsap.to(text, {
+            x: 5,
+            duration: 6,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut"
+        });
+
+        // Reduced master rotation
+        gsap.to(text, {
+            rotation: 1,
+            duration: 10,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut"
+        });
+
+        // Optimized individual letter animations
+        letters.forEach((letter, index) => {
+            // Reduced rotation
+            gsap.to(letter, {
+                rotation: Math.random() * 4 - 2, // Reduced range
+                duration: 4 + Math.random() * 3, // Slower
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut",
+                delay: index * 0.15 // Slower stagger
+            });
+
+            // Reduced scale
+            gsap.to(letter, {
+                scale: 1.05, // Reduced scale
+                duration: 3 + Math.random() * 2,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut",
+                delay: index * 0.2
+            });
+        });
+
+        // Reduced opacity pulse
+        gsap.to(text, {
+            opacity: 0.95,
+            duration: 3,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut"
+        });
+    });
+
+    // Mobile-optimized interactive features
+    let isInteracting = false;
+    let interactionTimeout;
+
+    text.addEventListener('touchstart', () => {
+        if (isInteracting) return;
+        isInteracting = true;
+        
+        // Clear any pending timeout
+        if (interactionTimeout) clearTimeout(interactionTimeout);
+        
+        // Scale up on touch
+        gsap.to(text, {
+            scale: 1.2,
+            duration: 0.3,
+            ease: "back.out(1.5)"
+        });
+        
+        // Individual letter jump - reduced intensity
+        letters.forEach((letter, index) => {
+            gsap.to(letter, {
+                y: -15, // Reduced jump height
+                rotation: Math.random() * 10 - 5, // Reduced rotation
+                duration: 0.4,
+                ease: "back.out(1.5)",
+                delay: index * 0.06 // Faster response
+            });
+        });
+    });
+
+    text.addEventListener('touchend', () => {
+        // Return to normal state with delay
+        interactionTimeout = setTimeout(() => {
+            gsap.to(text, {
+                scale: 1,
+                duration: 0.4,
+                ease: "back.out(1.5)"
+            });
+            
+            // Return letters to position
+            letters.forEach((letter, index) => {
+                gsap.to(letter, {
+                    y: 0,
+                    rotation: 0,
+                    duration: 0.5,
+                    ease: "back.out(1.5)",
+                    delay: index * 0.06
+                });
+            });
+            
+            isInteracting = false;
+        }, 100);
+    });
+
+    // Double tap to replay entrance
+    let lastTap = 0;
+    text.addEventListener('touchend', (e) => {
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTap;
+        
+        if (tapLength < 500 && tapLength > 0) {
+            // Double tap detected
+            e.preventDefault();
+            
+            // Hide all letters quickly
+            gsap.to(letters, {
+                opacity: 0,
+                y: 30, // Reduced distance
+                rotationX: 45, // Reduced rotation
+                scale: 0.7,
+                duration: 0.2,
+                stagger: 0.03, // Faster
+                ease: "power2.in"
+            });
+
+            // Reveal letters with delay
+            setTimeout(() => {
+                gsap.to(letters, {
+                    opacity: 1,
+                    y: 0,
+                    rotationX: 0,
+                    scale: 1,
+                    duration: 0.8,
+                    stagger: 0.08,
+                    ease: "back.out(1.5)"
+                });
+            }, 300);
+        }
+        lastTap = currentTime;
+    });
+
+    // Prevent context menu on long press
+    text.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        return false;
+    });
+}
+
+
+// Create particles for special stretch effect
+function createStretchParticles(text) {
+    const rect = text.getBoundingClientRect();
+    const particlesContainer = document.createElement('div');
+    particlesContainer.style.position = 'fixed';
+    particlesContainer.style.top = '0';
+    particlesContainer.style.left = '0';
+    particlesContainer.style.width = '100%';
+    particlesContainer.style.height = '100%';
+    particlesContainer.style.pointerEvents = 'none';
+    particlesContainer.style.zIndex = '1000';
+    document.body.appendChild(particlesContainer);
+    
+    // Create multiple particles
+    for (let i = 0; i < 12; i++) {
+        const particle = document.createElement('div');
+        particle.style.position = 'absolute';
+        particle.style.width = '8px';
+        particle.style.height = '8px';
+        particle.style.background = getRandomColor();
+        particle.style.borderRadius = '50%';
+        particle.style.left = (rect.left + rect.width / 2) + 'px';
+        particle.style.top = (rect.top + rect.height / 2) + 'px';
+        particle.style.opacity = '1';
+        particle.style.filter = 'blur(1px)';
+        particlesContainer.appendChild(particle);
+        
+        // Animate particle
+        const angle = (i / 12) * Math.PI * 2;
+        const distance = 100 + Math.random() * 50;
+        
+        gsap.to(particle, {
+            x: Math.cos(angle) * distance,
+            y: Math.sin(angle) * distance,
+            opacity: 0,
+            scale: 0,
+            duration: 1.5,
+            ease: "power2.out",
+            onComplete: () => {
+                particle.remove();
+            }
+        });
+    }
+    
+    // Remove container after animation
+    setTimeout(() => {
+        particlesContainer.remove();
+    }, 1600);
+}
+
+// Helper function to get random vibrant colors
+function getRandomColor() {
+    const colors = [
+        "#00f5ff", "#9d4edd", "#ff2e92", "#ff8c00", "#00ff88", 
+        "#ff0054", "#ffd60a", "#00b4d8", "#6a4c93", "#e63946"
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+}
+
+// Desktop animation (your existing code)
+function initDesktopTantraAnimation(text) {
     // Split text into letters for individual animation
     const textContent = text.textContent;
     text.innerHTML = '';
@@ -182,6 +461,24 @@ function initTantraAnimation() {
     });
 }
 
+// Handle window resize to switch between mobile/desktop animations
+let currentAnimationMode = window.innerWidth <= 768 ? 'mobile' : 'desktop';
+let resizeTimeout;
+
+window.addEventListener('resize', () => {
+    // Debounce resize events
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        const newMode = window.innerWidth <= 768 ? 'mobile' : 'desktop';
+        
+        if (newMode !== currentAnimationMode) {
+            currentAnimationMode = newMode;
+            console.log(`Switching to ${newMode} animation mode`);
+            // For better UX, we don't reload the page
+            // The animation will adapt on next page load
+        }
+    }, 250);
+});
 // Load data from JSON file
 async function loadData() {
     try {
@@ -820,7 +1117,6 @@ function setupEventListeners() {
     });
 
     
-    
     // Navigation toggle
     if (navToggle) {
         navToggle.addEventListener('click', toggleNavigation);
@@ -952,4 +1248,33 @@ window.addEventListener('scroll', () => {
 });
 
 // Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => {
+    init();
+    // Footer interactivity
+    // Instagram tap
+    const insta = document.getElementById('footer-insta');
+    if (insta) {
+        insta.addEventListener('click', () => {
+            window.open('https://www.instagram.com/tantra_.25?igsh=Y2xpczhhempqM3B0', '_blank');
+        });
+    }
+    // Mail tap
+    const mail = document.getElementById('footer-mail');
+    if (mail) {
+        mail.addEventListener('click', () => {
+            window.open('mailto:tantratechvjec@gmail.com');
+        });
+    }
+    // Address double-tap
+    const address = document.getElementById('footer-address');
+    if (address) {
+        let lastTap = 0;
+        address.addEventListener('click', (e) => {
+            const now = Date.now();
+            if (now - lastTap < 400) {
+                window.open('https://vjec.ac.in/', '_blank');
+            }
+            lastTap = now;
+        });
+    }
+});

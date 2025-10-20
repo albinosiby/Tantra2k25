@@ -531,11 +531,8 @@ function createEventCard(event) {
   border-radius: 20px;
   padding: 18px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.45), inset 0 0 10px rgba(255,255,255,0.05);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 350px;
-  height: 400px;
+    display: flex;
+    flex-direction: column;
   transition: all 0.3s ease;
   backdrop-filter: blur(6px);
 ">
@@ -604,20 +601,8 @@ function createEventCard(event) {
 
   </div>
 
-  <!-- 📝 Description -->
-  <div class="event-description" style="
-    flex-grow: 1;
-    overflow-y: auto;
-    line-height: 1.5;
-    color: #d6d6f5;
-    font-size: 0.88rem;
-    background: rgba(255,255,255,0.07);
-    padding: 10px 12px;
-    border-radius: 10px;
-    box-shadow: inset 0 0 6px rgba(255,255,255,0.05);
-  ">
-    ${event.description || ''}
-  </div>
+    <!-- 📝 Description -->
+    <p class="event-description">${event.description || ''}</p>
 
 </div>
 
@@ -1130,6 +1115,7 @@ function initScrollAnimations() {
 // Add scroll effects
 window.addEventListener('scroll', () => {
     const header = document.querySelector('header');
+    if (!header) return; // no header in this layout — skip scroll styling
     const scrollY = window.scrollY;
 
     if (scrollY > 100) {
