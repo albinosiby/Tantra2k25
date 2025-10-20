@@ -87,7 +87,7 @@
     /* Reduce hero logo complexity */
     .hero-logo {
         filter: none;
-        opacity: 0.05;
+        opacity: 0.08;
     }
 }
 .event-actions {
@@ -338,7 +338,7 @@ body.animation-playing {
 /* Extra small phone optimization */
 @media (max-width: 480px) {
     .tantra-text {
-        font-size: 3rem;
+        font-size: 4rem;
     }
     
     .tantra-animation-container {
@@ -349,7 +349,7 @@ body.animation-playing {
     
     .hero-logo {
         width: 140vw;
-        opacity: 0.1;
+        opacity: 0.3;
     }
 }
 
@@ -368,7 +368,7 @@ body.animation-playing {
 /* Extra small phone optimization */
 @media (max-width: 480px) {
     .tantra-text {
-        font-size: 3rem;
+        font-size: 4rem;
         animation: mobile-tantra-pulse-sm 2.5s ease-in-out infinite;
     }
     
@@ -678,7 +678,7 @@ header {
     transform: translate(-50%, -50%);
     width: 70vw; /* occupy large width behind text */
     max-width: 1200px;
-    opacity: 0.06; /* subtle watermark effect */
+    opacity: 0.08; /* subtle watermark effect */
     pointer-events: none;
     z-index: 1;
     filter: drop-shadow(0 20px 40px rgba(0,0,0,0.2));
@@ -728,17 +728,17 @@ header {
     }
     /* lift the TANTRA text slightly on tablet/large-mobile */
     .tantra-animation-container {
-        transform: translateY(-8vh);
+        transform: translateY(-9vh);
     }
     .hero-logo {
         width: 110vw;
-        opacity: 0.10; /* slightly brighter on tablets/large phones */
+        opacity: 0.12; /* slightly brighter on tablets/large phones */
     }
 }
 
 @media (max-width: 480px) {
     .tantra-text {
-        font-size: 3.5rem;
+        font-size: 4rem;
     }
     /* lift even more and reduce height on small mobile screens */
     .tantra-animation-container {
@@ -748,7 +748,7 @@ header {
     }
     .hero-logo {
         width: 140vw;
-        opacity: 0.12; /* brighter on small phones */
+        opacity: 0.14; /* brighter on small phones */
     }
 }
 /* Enhanced Hero Section */
@@ -2412,9 +2412,9 @@ header {
 }
 
 .contact-info {
-    display: grid;
+    display: flex;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1.2rem;
+    gap: 5.5rem;
     align-items: start;
 }
 
@@ -2434,7 +2434,7 @@ header {
 
 .contact-item i {
     color: var(--accent-cyan);
-    margin-top: 0.2rem;
+    margin-top: 0.3rem;
     flex-shrink: 0;
 }
 
@@ -2791,6 +2791,8 @@ header {
     }
     
     .contact-info {
+        gap: 3rem;
+        display: contents;
         align-items: left;
     }
     
@@ -2836,7 +2838,7 @@ header {
     }
     
     .tantra-text {
-        font-size: 3.5rem;
+        font-size: 4rem;
     }
     
     .modal-content {
