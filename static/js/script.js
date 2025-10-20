@@ -640,72 +640,13 @@ function updatePageContent() {
     if (isEventsPage) {
         // Events page - render department tabs and events
         renderDepartmentTabs();
-        renderEvents();
     } else {
-        // Main page - render featured events and departments
-        renderFeaturedEvents();
+        // Main page - render departments
+
         renderDepartments();
     }
 }
 
-// Render featured events on main page
-function renderFeaturedEvents() {
-    const featuredContainer = document.getElementById('featured-events-container');
-    if (!featuredContainer) return;
-    
-    // Get 3 featured events (prioritize events with high participants)
-    let featuredEvents = [...events]
-        .sort((a, b) => b.participants - a.participants)
-        .slice(0, 3);
-    
-    // If not enough events, just take what's available
-    if (featuredEvents.length === 0) {
-        featuredEvents = events.slice(0, Math.min(3, events.length));
-    }
-    
-    if (featuredEvents.length === 0) {
-        featuredContainer.innerHTML = `
-            <div class="no-events">
-                <i class="fas fa-calendar-times"></i>
-                <h3>No featured events available</h3>
-                <p>Check back later for exciting events</p>
-            </div>
-        `;
-        return;
-    }
-    
-    featuredContainer.innerHTML = featuredEvents.map(event => {
-        const department = departments.find(dept => dept.id === event.department);
-        const priceText = event.price === 0 ? 'FREE' : `₹${event.price}`;
-        
-        return `
-            <div class="featured-card">
-                <div class="featured-badge">
-                    <i class="fas fa-star"></i> FEATURED
-                </div>
-                <h4>${event.name}</h4>
-                <p>${event.description}</p>
-                <div class="featured-stats">
-                    <div class="featured-stat">
-                        <i class="fas fa-users"></i>
-                        <span>${event.participants}+ participants</span>
-                    </div>
-                    <div class="featured-stat">
-                        <i class="fas fa-calendar"></i>
-                        <span>${formatDate(event.date)}</span>
-                    </div>
-                    <div class="featured-price">${priceText}</div>
-                </div>
-                <div class="featured-actions">
-                    <button class="register-btn" data-event-id="${event.id}">
-                        <span>Register Now</span>
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
 
 // Render departments on main page
 // In the renderDepartments function, update the department card links:
@@ -849,79 +790,6 @@ function renderDepartmentTabs() {
         renderDepartmentTabs();
         renderEvents();
     }
-}
-
-// Enhanced event card animations
-function animateEventCards() {
-    const eventCards = document.querySelectorAll('.event-card');
-    
-    // Reset animations when filtering
-    eventCards.forEach(card => {
-        card.style.animation = 'none';
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(50px) scale(0.9)';
-    });
-    
-    // Trigger reflow
-    void eventCards[0]?.offsetHeight;
-    
-    // Apply animations with delays
-    eventCards.forEach((card, index) => {
-        card.style.animation = `
-            cardEntrance 0.8s ease-out ${index * 0.1}s forwards,
-            float 6s ease-in-out ${index * 0.5}s infinite,
-            pulseGlow 4s ease-in-out ${index * 0.3}s infinite
-        `;
-    });
-}
-
-
-// Create event card element
-function createEventCard(event) {
-    const card = document.createElement('div');
-    card.className = 'event-card';
-    card.setAttribute('data-category', event.category);
-    
-    const priceText = event.price === 0 ? 'FREE' : `₹${event.price}`;
-    const department = departments.find(dept => dept.id === event.department);
-    
-    card.innerHTML = `
-        <img src="${event.image}" alt="${event.name}" class="event-image" loading="lazy">
-        <div class="event-content">
-            <div class="event-header">
-                <span class="event-department">${department ? department.name : event.department}</span>
-                <span class="event-price">${priceText}</span>
-            </div>
-            <h3 class="event-title">${event.name}</h3>
-            <p class="event-description">${event.description}</p>
-            
-            <div class="event-details">
-                <div class="event-detail">
-                    <i class="fas fa-calendar"></i>
-                    <span>${formatDate(event.date)}</span>
-                </div>
-                <div class="event-detail">
-                    <i class="fas fa-clock"></i>
-                    <span>${event.time}</span>
-                </div>
-                <div class="event-detail">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <span>${event.venue}</span>
-                </div>
-                <div class="event-detail">
-                    <i class="fas fa-users"></i>
-                    <span>${event.participants} Participants</span>
-                </div>
-            </div>
-            
-            <button class="register-btn" data-event-id="${event.id}">
-                <span>Register Now</span>
-                <i class="fas fa-arrow-right"></i>
-            </button>
-        </div>
-    `;
-    
-    return card;
 }
 
 // Format date for display

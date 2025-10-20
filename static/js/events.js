@@ -1173,6 +1173,7 @@ async function init() {
     console.log('Current department:', currentDepartment);
 }
 
+
 // Initialize when DOM is loaded
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
