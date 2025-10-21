@@ -197,6 +197,60 @@ html {
     --gradient-secondary: linear-gradient(135deg, #ff2e92, #ff8c00);
 }
 
+/* iOS-specific fallbacks: when iOS is detected, the `html` element will have class `ios`.
+   These rules reduce heavy effects that can cause Safari to reload pages under memory/CPU pressure. */
+html.ios {
+    /* prefer lower-resolution images via CSS where possible */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+html.ios .initial-animation,
+html.ios .initial-video,
+html.ios .skip-button,
+html.ios .hero-badge,
+html.ios .bg-particle,
+html.ios .flip-card .event-image {
+    animation: none !important;
+    transition: none !important;
+}
+
+html.ios .flip-card {
+    /* reduce perspective and transform complexity */
+    perspective: 800px;
+}
+
+html.ios .flip-card-inner {
+    transition: transform 0.45s ease !important;
+}
+
+html.ios .flip-card-front, html.ios .flip-card-back {
+    box-shadow: none !important;
+    background: var(--card-bg) !important;
+    backdrop-filter: none !important; /* disable expensive backdrop-filter on iOS */
+}
+
+html.ios .qr-code-image img {
+    max-width: 140px;
+    height: auto;
+}
+
+/* Reduce animations and shadows site-wide on iOS */
+html.ios * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+/* Reduce floating/infinite animations specifically */
+html.ios .event-card {
+    animation-iteration-count: 1 !important;
+}
+
+/* Avoid heavy backdrop blurs on modals for iOS */
+html.ios .modal-content {
+    backdrop-filter: none !important;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -3062,39 +3116,57 @@ header {
         background: transparent;
         border-radius: 14px;
         perspective: 1200px;
+        -webkit-perspective: 1200px; /* WebKit for iOS */
         position: relative;
     }
     .flip-card-inner {
         position: relative;
         transition: transform 0.75s cubic-bezier(.2,.9,.2,1);
+        -webkit-transition: -webkit-transform 0.75s cubic-bezier(.2,.9,.2,1);
         transform-style: preserve-3d;
+        -webkit-transform-style: preserve-3d; /* WebKit for iOS */
         border-radius: 14px;
+        will-change: transform;
+        transform: translateZ(0); /* force GPU compositing */
+        -webkit-transform: translateZ(0);
     }
     .flip-card-front, .flip-card-back {
         position: relative;
         min-height: 320px;
         border-radius: 14px;
         backface-visibility: hidden;
+        -webkit-backface-visibility: hidden; /* WebKit for iOS */
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         padding: 20px;
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
     }
     .flip-card-front {
         background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
         border: 1px solid rgba(255,255,255,0.04);
+        z-index: 2; /* ensure front sits above back when not flipped */
+        -webkit-transform: rotateY(0deg);
+        transform: rotateY(0deg);
     }
     .flip-card-back {
         position: absolute;
         inset: 0;
         transform: rotateY(180deg);
+        -webkit-transform: rotateY(180deg); /* WebKit for iOS */
         background: linear-gradient(180deg, rgba(15,10,30,0.6), rgba(10,10,20,0.6));
         border: 1px solid rgba(255,255,255,0.03);
+        z-index: 1;
     }
+    /* When flipped swap z-index so back sits on top and front hides cleanly on iOS */
     .flip-card-inner.flipped {
         transform: rotateY(180deg) translateZ(0) scale(1.02);
+        -webkit-transform: rotateY(180deg) translateZ(0) scale(1.02);
     }
+    .flip-card-inner.flipped .flip-card-front { z-index: 1; }
+    .flip-card-inner.flipped .flip-card-back { z-index: 2; }
     @media (max-width: 768px) {
         .flip-card-front, .flip-card-back { min-height: 240px; }
         .flip-card { width: 90%; max-width: 350px; height: auto; }

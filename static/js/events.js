@@ -3,6 +3,8 @@ let events = [];
 let departments = [];
 let festivalInfo = {};
 let currentDepartment = 'all';
+// Environment flags
+let isIOS = false;
 
 // DOM Elements
 let eventsContainer, registrationModal, registrationForm, eventNameInput, closeModal, navToggle, navMenu;
@@ -23,6 +25,21 @@ function initializeDOMElements() {
     console.log('- registrationForm:', registrationForm);
     console.log('- eventNameInput:', eventNameInput);
     console.log('- closeModal:', closeModal);
+}
+
+// Detect iOS devices early and add a class to <html> for CSS fallbacks
+function detectIOS() {
+    try {
+        const ua = navigator.userAgent || navigator.vendor || window.opera;
+        // iPadOS 13+ presents as Mac in desktop mode; check for touch support as well
+        isIOS = /iP(ad|hone|od)/.test(ua) || (ua.includes('Mac') && 'ontouchend' in document);
+        if (isIOS) {
+            document.documentElement.classList.add('ios');
+            console.log('iOS detected - applying iOS specific fallbacks');
+        }
+    } catch (e) {
+        isIOS = false;
+    }
 }
 
 // Debug functions
@@ -496,10 +513,12 @@ function createEventCard(event) {
     card.classList.add('flip-card');
     // Use event.image_url if present, else event.image, else fallback
     const eventImageUrl = event.image_url && event.image_url.trim() !== '' ? event.image_url : (event.image || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80');
+    // Use lazy loading to avoid memory pressure on iOS/Safari
+    const loadingAttr = isIOS ? 'lazy' : 'eager';
     card.innerHTML = `
             <div class="flip-card-inner">
                 <div class="flip-card-front">
-                    <img src="${eventImageUrl}" alt="${event.name}" class="event-image" loading="eager"
+                    <img src="${eventImageUrl}" alt="${event.name}" class="event-image" loading="${loadingAttr}"
                         onerror="this.src='https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80'">
                     <div class="event-content">
                         <h3 class="event-title">${event.name}</h3>
@@ -618,7 +637,18 @@ function createEventCard(event) {
     detailsBtns.forEach(btn => {
         btn.addEventListener('click', e => {
             e.stopPropagation();
+            // On iOS we add a helper class and force a repaint to avoid back/front overlap
             inner.classList.add('flipped');
+            if (isIOS) {
+                // briefly toggle will-change to force compositing and repaint
+                inner.style.willChange = 'transform, opacity';
+                // Force a small reflow/repaint
+                void inner.offsetHeight;
+                // ensure pointer-events on back face are enabled
+                inner.querySelectorAll('.flip-card-back, .flip-card-front').forEach(el => {
+                    el.style.pointerEvents = 'auto';
+                });
+            }
         });
     });
 
@@ -680,17 +710,37 @@ function animateEventCards() {
 
     // Apply animations with delays
     eventCards.forEach((card, index) => {
-        card.style.animation = `
-            cardEntrance 0.8s ease-out ${index * 0.1}s forwards,
-            float 6s ease-in-out ${index * 0.5}s infinite,
-            pulseGlow 4s ease-in-out ${index * 0.3}s infinite
-        `;
+        // On iOS avoid infinite animations which can cause Safari to crash or reload
+        if (isIOS) {
+            card.style.animation = `cardEntrance 0.8s ease-out ${index * 0.07}s forwards`;
+            card.style.willChange = 'transform, opacity';
+        } else {
+            card.style.animation = `
+                cardEntrance 0.8s ease-out ${index * 0.1}s forwards,
+                float 6s ease-in-out ${index * 0.5}s infinite,
+                pulseGlow 4s ease-in-out ${index * 0.3}s infinite
+            `;
+        }
     });
 }
 
 // Preload event images to warm browser cache and make cards render instantly
 function preloadEventImages() {
     if (!events || events.length === 0) return;
+    // Avoid preloading many images on iOS to reduce memory pressure
+    if (isIOS) {
+        console.log('Skipping bulk image preloads on iOS to avoid memory issues');
+        // Preload only the first 2 images as a minimal warm-up
+        events.slice(0, 2).forEach(ev => {
+            const url = ev.image_url && ev.image_url.trim() !== '' ? ev.image_url : (ev.image || '');
+            if (url) {
+                const img = new Image();
+                img.src = url;
+            }
+        });
+        return;
+    }
+    // Desktop / non-iOS: preload all images
     events.forEach(ev => {
         const url = ev.image_url && ev.image_url.trim() !== '' ? ev.image_url : (ev.image || '');
         if (url) {
@@ -1131,6 +1181,9 @@ async function init() {
 
     // Initialize DOM elements first
     initializeDOMElements();
+
+    // Detect iOS devices early so we can avoid heavy effects
+    detectIOS();
 
     // Start loading data
     await loadData();
