@@ -511,14 +511,16 @@ function createEventCard(event) {
 
     const isOpen = event.status === 'open';
     card.classList.add('flip-card');
+    // Mark card as hidden initially for CSS-controlled entrance
+    card.classList.add('card-hidden');
     // Use event.image_url if present, else event.image, else fallback
     const eventImageUrl = event.image_url && event.image_url.trim() !== '' ? event.image_url : (event.image || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80');
-    // Use lazy loading to avoid memory pressure on iOS/Safari
-    const loadingAttr = isIOS ? 'lazy' : 'eager';
+    // Use lazy loading to avoid memory pressure; always prefer lazy so text/buttons render first
+    const loadingAttr = 'lazy';
     card.innerHTML = `
             <div class="flip-card-inner">
                 <div class="flip-card-front">
-                    <img src="${eventImageUrl}" alt="${event.name}" class="event-image" loading="${loadingAttr}"
+                    <img src="${eventImageUrl}" alt="${event.name}" class="event-image" loading="${loadingAttr}" width="600" height="400"
                         onerror="this.src='https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80'">
                     <div class="event-content">
                         <h3 class="event-title">${event.name}</h3>
@@ -526,13 +528,16 @@ function createEventCard(event) {
                             <span class="event-group"><i class="fas fa-users"></i> ${event.category}</span>
                             <span class="event-price">${priceText}</span>
                         </div>
+
                         <div class="event-actions" style="display:flex;gap:8px;">
                             ${isOpen
             ? `<button class="register-btn" data-event-id="${eventId}">
                                         <span>Register Now</span>
                                         <i class="fas fa-arrow-right"></i>
                                     </button>`
-            : `<button class="register-btn" data-event-id="${eventId}" disabled style="background:#aaa;cursor:not-allowed;">
+            : (event.status === 'spot')
+                ? `<span style="cursor:not-allowed; color: #aaa;"> Spot Registration </span>`
+                : `<button class="register-btn" data-event-id="${eventId}" disabled style="background:#aaa;cursor:not-allowed;">
                                         <span>Registration Closed</span>
                                         <i class="fas fa-lock"></i>
                                     </button>`
@@ -577,7 +582,7 @@ function createEventCard(event) {
       padding: 6px 14px;
       border-radius: 10px;
       font-weight: 600;
-      font-size: 0.95rem;s
+      font-size: 0.95rem;
       color: #ffe066;
       box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     ">
@@ -679,6 +684,12 @@ function createEventCard(event) {
             }
         }
     });
+    // Ensure card is visible immediately (CSS will animate entrance) after insertion
+    // Defer the visible class to next animation frame so CSS transitions run
+    requestAnimationFrame(() => {
+        card.classList.remove('card-hidden');
+        card.classList.add('card-visible');
+    });
     return card;
 }
 
@@ -698,30 +709,20 @@ function animateEventCards() {
     const eventCards = document.querySelectorAll('.event-card');
     console.log('Animating event cards:', eventCards.length);
 
-    // Reset animations when filtering
-    eventCards.forEach(card => {
-        card.style.animation = 'none';
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(50px) scale(0.9)';
+    // Use CSS classes and CSS variable for staggered delays instead of inline styles
+    eventCards.forEach((card, index) => {
+        // Reset state
+        card.classList.remove('staggered-animate');
+        card.style.removeProperty('--stagger-delay');
+        // set stagger delay via CSS variable (in seconds)
+        card.style.setProperty('--stagger-delay', `${(index * 0.07).toFixed(2)}s`);
     });
 
     // Trigger reflow
     void eventCards[0]?.offsetHeight;
 
-    // Apply animations with delays
-    eventCards.forEach((card, index) => {
-        // On iOS avoid infinite animations which can cause Safari to crash or reload
-        if (isIOS) {
-            card.style.animation = `cardEntrance 0.8s ease-out ${index * 0.07}s forwards`;
-            card.style.willChange = 'transform, opacity';
-        } else {
-            card.style.animation = `
-                cardEntrance 0.8s ease-out ${index * 0.1}s forwards,
-                float 6s ease-in-out ${index * 0.5}s infinite,
-                pulseGlow 4s ease-in-out ${index * 0.3}s infinite
-            `;
-        }
-    });
+    // Apply staggered class so CSS transitions/animations run
+    eventCards.forEach(card => card.classList.add('staggered-animate'));
 }
 
 // Preload event images to warm browser cache and make cards render instantly
