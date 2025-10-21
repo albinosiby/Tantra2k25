@@ -19,6 +19,7 @@ import json
 import re
 import io
 import os
+import uuid
 from werkzeug.utils import secure_filename
 from typing import List, Dict
 
@@ -35,7 +36,7 @@ except Exception:
 app = Flask(__name__)
 
 # Base link to use when constructing absolute URLs for saved DB links.
-curr_link = os.environ.get('CURR_LINK', "http://127.0.0.1:5000")
+curr_link = os.environ.get('CURR_LINK', "https://tantra-backend-3bmp.onrender.com")
 
 
 def make_static_url(filename: str) -> str:
@@ -69,7 +70,7 @@ app.config['UPLOAD_LOGO_FOLDER'] = UPLOAD_LOGO_FOLDER
 # If FIREBASE_SERVICE_ACCOUNT_JSON is set we try to parse it robustly and use
 # credentials.Certificate with the parsed dict so no temporary file is required.
 _sa_json = os.environ.get('FIREBASE_SERVICE_ACCOUNT_JSON')
-_sa_file = os.environ.get('FIREBASE_CREDENTIALS_FILE', 'techfestadmin-a2e2c-firebase-adminsdk-fbsvc-8fc9d6e2e5.json')
+_sa_file = os.environ.get('FIREBASE_CREDENTIALS_FILE', 'fconfig.json')
 
 
 def _parse_service_account_env(text: str):
@@ -135,14 +136,17 @@ def index():
     events = list(db.collection('events').stream())
     total_events = len(events)
 
-    parts = list(db.collection('participants').stream())
-    total_registrations = len(parts)
+    # Count registrations (not participants)
+    registrations = list(db.collection('registrations').stream())
+    total_registrations = len(registrations)
+    
+    # Count unique participants (by email)
     unique_participants = set()
-    for pdoc in parts:
-        p = pdoc.to_dict()
-        ident = (p.get('email') or p.get('phone') or pdoc.id)
-        if ident:
-            unique_participants.add(str(ident).strip().lower())
+    for reg in registrations:
+        reg_data = reg.to_dict()
+        email = reg_data.get('email', '').strip().lower()
+        if email:
+            unique_participants.add(email)
     total_unique_participants = len(unique_participants)
 
     recent_events = []
@@ -249,34 +253,44 @@ def get_event(event_id):
 def api_data():
     """Return normalized data for frontend (departments, events)."""
     try:
-        from data_provider import get_data
-        data = get_data()
-        # ensure department ordering: move preferred dept to front if present
+        # Direct Firestore query without data_provider
+        departments = []
+        depts = db.collection('departments').stream()
+        for dept in depts:
+            dept_data = dept.to_dict()
+            dept_data['id'] = dept.id
+            departments.append(dept_data)
+        
+        events = []
+        evs = db.collection('events').stream()
+        for event in evs:
+            event_data = event.to_dict()
+            event_data['id'] = event.id
+            events.append(event_data)
+        
+        # Ensure preferred department ordering
         preferred_id = 'computer-science-engineering'
-        depts = data.get('departments', []) or []
-        for i, d in enumerate(depts):
-            if (d.get('id') if isinstance(d, dict) else getattr(d, 'id', None)) == preferred_id:
-                depts.insert(0, depts.pop(i))
+        for i, d in enumerate(departments):
+            if d.get('id') == preferred_id:
+                departments.insert(0, departments.pop(i))
                 break
-        data['departments'] = depts
-        return jsonify(data)
+                
+        return jsonify({
+            'departments': departments,
+            'events': events
+        })
+        
     except Exception as e:
-        # As a fallback, attempt to read local data file directly
+        print(f"API data error: {e}")
+        # Fallback to local file
         try:
-            import json as _json, os as _os
-            data_path = _os.path.join(_os.path.dirname(__file__), 'data', 'data.json')
+            data_path = os.path.join(os.path.dirname(__file__), 'data', 'data.json')
             with open(data_path, 'r', encoding='utf-8') as f:
-                raw = _json.load(f)
-            # normalize minimally and ensure preferred dept first
-            departments = raw.get('departments', []) or []
-            preferred_id = 'computer-science-engineering'
-            for i, d in enumerate(departments):
-                # d may be dict or simple tuple/list in older data; try to handle dicts primarily
-                did = d.get('id') if isinstance(d, dict) else (d[0] if isinstance(d, (list, tuple)) and len(d) > 0 else None)
-                if did == preferred_id:
-                    departments.insert(0, departments.pop(i))
-                    break
-            return jsonify({'departments': departments, 'events': raw.get('events', [])})
+                raw = json.load(f)
+            return jsonify({
+                'departments': raw.get('departments', []),
+                'events': raw.get('events', [])
+            })
         except Exception:
             return jsonify({'departments': [], 'events': []})
 
@@ -391,34 +405,6 @@ def toggle_event_status():
     return redirect(url_for('index'))
 
 
-def _resolve_participant_from_registration(reg_data: dict) -> Dict:
-    if not reg_data or not isinstance(reg_data, dict):
-        return None
-
-    inline = reg_data.get('participant')
-    if inline and isinstance(inline, dict):
-        return inline
-
-    pid = reg_data.get('participant_id') or reg_data.get('user_id') or reg_data.get('uid')
-    if pid:
-        ref = db.collection('participants').document(pid).get()
-        if ref.exists:
-            return ref.to_dict()
-        ref2 = db.collection('users').document(pid).get()
-        if ref2.exists:
-            return ref2.to_dict()
-
-    email = reg_data.get('participant_email') or reg_data.get('email') or reg_data.get('user_email')
-    if email:
-        q = db.collection('participants').where('email', '==', email).limit(1).stream()
-        for doc in q:
-            return doc.to_dict()
-        q2 = db.collection('users').where('email', '==', email).limit(1).stream()
-        for doc in q2:
-            return doc.to_dict()
-    return None
-
-
 @app.route('/view_participants', methods=['GET'])
 def view_participants():
     departments = db.collection('departments').stream()
@@ -427,49 +413,55 @@ def view_participants():
 
     selected_dept_id = request.args.get('dept_id')
     selected_event_id = request.args.get('event_id')
-    sort_by_event = bool(selected_event_id)
-    participants_info: List[Dict] = []
+    
+    participants_info = []
 
-    parts = db.collection('participants').stream()
-
-    selected_dept_name = None
+    # Build query for registrations
+    reg_query = db.collection('registrations')
+    
     if selected_dept_id:
-        ddoc = db.collection('departments').document(selected_dept_id).get()
-        if ddoc.exists:
-            selected_dept_name = ddoc.to_dict().get('name')
+        # Get department name from ID
+        dept_doc = db.collection('departments').document(selected_dept_id).get()
+        if dept_doc.exists:
+            dept_name = dept_doc.to_dict().get('name')
+            reg_query = reg_query.where('department', '==', dept_name)
+    
+    if selected_event_id:
+        reg_query = reg_query.where('event_id', '==', selected_event_id)
 
-    for pdoc in parts:
-        p = pdoc.to_dict()
-        p_dept = p.get('department') or ''
-        p_event = p.get('event') or ''
-        if selected_dept_name and p_dept != selected_dept_name:
-            continue
-        if selected_event_id and p_event != selected_event_id:
-            continue
-
+    # Fetch registrations
+    registrations = reg_query.stream()
+    
+    for reg_doc in registrations:
+        reg = reg_doc.to_dict()
+        
         participants_info.append({
-            'name': p.get('name'),
-            'email': p.get('email'),
-            'phone': p.get('phone'),
-            'college': p.get('college'),
-            'branch': p.get('branch'),
-            'year': p.get('year'),
-            'event_name': p_event,
-            'dept_name': p_dept,
-            'event_id': '',
-            'transaction_id': p.get('transactionId') or p.get('transaction_id')
+            'name': reg.get('name'),
+            'email': reg.get('email'),
+            'phone': reg.get('phone'),
+            'college': reg.get('college'),
+            'branch': reg.get('branch'),
+            'year': reg.get('year'),
+            'event_name': reg.get('event_name'),
+            'dept_name': reg.get('department'),
+            'event_id': reg.get('event_id'),
+            'transaction_id': reg.get('transaction_id'),
+            'registration_date': reg.get('registration_date')
         })
 
-    if sort_by_event:
-        participants_info = sorted(participants_info, key=lambda r: (r.get('dept_name', ''), r.get('event_name', ''), r.get('name', '')))
-    else:
+    # Sort results
+    if selected_event_id:
         participants_info = sorted(participants_info, key=lambda r: (r.get('dept_name', ''), r.get('name', '')))
+    else:
+        participants_info = sorted(participants_info, key=lambda r: (r.get('dept_name', ''), r.get('event_name', ''), r.get('name', '')))
 
+    # Get events for filter dropdown
     if selected_dept_id:
         ev_q = db.collection('events').where('department', '==', selected_dept_id).stream()
     else:
         ev_q = db.collection('events').stream()
-    events_for_select = [(e.to_dict().get('name'), e.to_dict().get('name')) for e in ev_q]
+    
+    events_for_select = [(e.id, e.to_dict().get('name')) for e in ev_q]
 
     return render_template('view_participants.html',
                            departments=dept_list,
@@ -477,54 +469,6 @@ def view_participants():
                            selected_dept_id=selected_dept_id,
                            selected_event_id=selected_event_id,
                            events_for_select=events_for_select)
-
-
-def _gather_participants(dept_id: str, event_id: str = None) -> List[Dict]:
-    rows: List[Dict] = []
-    if not dept_id:
-        return rows
-
-    event_ids = []
-    event_map = {}
-    if event_id:
-        ev_doc = db.collection('events').document(event_id).get()
-        if ev_doc.exists:
-            event_ids = [ev_doc.id]
-            event_map[ev_doc.id] = ev_doc.to_dict()
-    else:
-        events = db.collection('events').where('department', '==', dept_id).stream()
-        for e in events:
-            event_ids.append(e.id)
-            event_map[e.id] = e.to_dict()
-
-    if not event_ids:
-        return rows
-
-    BATCH = 10
-    for i in range(0, len(event_ids), BATCH):
-        batch_ids = event_ids[i:i+BATCH]
-        regs_query = db.collection('registrations').where('event_id', 'in', batch_ids).stream()
-        for reg in regs_query:
-            reg_data = reg.to_dict()
-            p = _resolve_participant_from_registration(reg_data)
-            if not p:
-                continue
-            ev_id = reg_data.get('event_id')
-            ev_data = event_map.get(ev_id, {})
-            rows.append({
-                'name': p.get('name'),
-                'email': p.get('email'),
-                'phone': p.get('phone'),
-                'college': p.get('college'),
-                'branch': p.get('branch/Class'),
-                'year': p.get('year'),
-                'event_name': ev_data.get('name'),
-                'dept_name': ev_data.get('department') or ev_data.get('dept_id') or '',
-                'event_id': ev_id,
-                'transaction_id': reg_data.get('transaction_id')
-            })
-
-    return rows
 
 
 @app.route('/export_participants')
@@ -555,29 +499,32 @@ def export_participants():
         else:
             event_name = event_id
 
-    q = db.collection('participants')
+    # Query registrations collection instead of participants
+    q = db.collection('registrations')
     if dept_name:
         q = q.where('department', '==', dept_name)
-    if event_name:
-        q = q.where('event', '==', event_name)
+    if event_id:
+        q = q.where('event_id', '==', event_id)
+    
     rows = []
     for doc in q.stream():
-        p = doc.to_dict()
+        reg = doc.to_dict()
         rows.append({
-            'name': p.get('name', ''),
-            'email': p.get('email', ''),
-            'phone': p.get('phone', ''),
-            'college': p.get('college', ''),
-            'branch': p.get('branch/Class', ''),
-            'year': p.get('year', ''),
-            'event_name': p.get('event', ''),
-            'dept_name': p.get('department', ''),
-            'transaction_id': p.get('transactionId') or p.get('transaction_id', '')
+            'name': reg.get('name', ''),
+            'email': reg.get('email', ''),
+            'phone': reg.get('phone', ''),
+            'college': reg.get('college', ''),
+            'branch': reg.get('branch', ''),
+            'year': reg.get('year', ''),
+            'event_name': reg.get('event_name', ''),
+            'dept_name': reg.get('department', ''),
+            'transaction_id': reg.get('transaction_id', ''),
+            'registration_date': reg.get('registration_date', '')
         })
 
     rows = sorted(rows, key=lambda r: (r.get('dept_name', ''), r.get('event_name', ''), r.get('name', '')))
 
-    headers = ['name', 'email', 'phone', 'college', 'branch/Class', 'year', 'event_name', 'dept_name', 'transaction_id']
+    headers = ['name', 'email', 'phone', 'college', 'branch', 'year', 'event_name', 'dept_name', 'transaction_id', 'registration_date']
 
     part_dept = _sanitize(dept_name) if dept_name else 'all_departments'
     part_event = _sanitize(event_name) if event_name else 'all_events'
@@ -681,69 +628,73 @@ def api_register():
             return jsonify({'status': 'fail', 'error': 'No data provided'}), 400
 
         # Extract participant info with flexible keys
-        participant = {
+        participant_data = {
             'name': (data.get('name') or data.get('participant-name') or '').strip(),
-            'email': (data.get('email') or data.get('participant-email') or '').strip(),
+            'email': (data.get('email') or data.get('participant-email') or '').strip().lower(),
             'phone': (data.get('phone') or data.get('participant-phone') or '').strip(),
             'college': (data.get('college') or data.get('participant-college') or '').strip(),
-            'branch/Class': (data.get('branch/Class') or data.get('participant-branch') or '').strip(),
+            'branch': (data.get('branch') or data.get('branch/Class') or data.get('participant-branch') or '').strip(),
             'year': (data.get('year') or data.get('participant-year') or '').strip(),
-            'event': (data.get('event_name') or data.get('event') or '').strip(),
-            'department': '',
-            'transactionId': (data.get('transaction_id') or data.get('transactionId') or '').strip(),
             'created_at': datetime.utcnow()
         }
 
-    # If event_id provided, resolve its department and set participant['department'] to department name
+        # Get event information
         event_id = str(data.get('event_id') or data.get('eventId') or '').strip()
-        if event_id:
-            try:
-                ev_doc = db.collection('events').document(event_id).get()
-                if ev_doc.exists:
-                    ev = ev_doc.to_dict()
-                    dept_id = ev.get('department') or ev.get('dept_id') or ev.get('department_id')
-                    dept_name = ''
-                    if dept_id:
-                        # Try to resolve department document to a human-readable name
-                        try:
-                            dept_doc = db.collection('departments').document(str(dept_id)).get()
-                            if dept_doc.exists:
-                                dept_name = dept_doc.to_dict().get('name', '')
-                            else:
-                                # Fallback: use dept_id itself (maybe it's already a name)
-                                dept_name = str(dept_id)
-                        except Exception:
-                            dept_name = str(dept_id)
-                    participant['department'] = dept_name
-            except Exception:
-                # if any error occurs resolving event/department, leave department blank
-                participant['department'] = ''
+        if not event_id:
+            return jsonify({'status': 'fail', 'error': 'Event ID is required'}), 400
 
-        # Save participant (by email or phone as doc id if possible)
-        # Server-side transaction ID validation: must be 12-16 alphanumeric
-        import re
+        # Validate event exists and get event details
+        try:
+            ev_doc = db.collection('events').document(event_id).get()
+            if not ev_doc.exists:
+                return jsonify({'status': 'fail', 'error': 'Event not found'}), 404
+            ev = ev_doc.to_dict()
+        except Exception as e:
+            return jsonify({'status': 'fail', 'error': 'Error fetching event details'}), 500
+
+        # Get department name
+        dept_id = ev.get('department') or ev.get('dept_id') or ''
+        dept_name = ''
+        if dept_id:
+            try:
+                dept_doc = db.collection('departments').document(str(dept_id)).get()
+                if dept_doc.exists:
+                    dept_name = dept_doc.to_dict().get('name', '')
+                else:
+                    dept_name = str(dept_id)
+            except Exception:
+                dept_name = str(dept_id)
+
+        # Validate transaction ID (optional)
         tx = (data.get('transaction_id') or data.get('transactionId') or '').strip()
         if tx:
             if not re.fullmatch(r'^[A-Za-z0-9]{12,16}$', tx):
                 return jsonify({'status': 'fail', 'error': 'Invalid transaction_id format'}), 400
-        participant['transactionId'] = tx
-        doc_id = participant.get('email') or participant.get('phone') or None
-        if doc_id:
-            db.collection('participants').document(doc_id).set(participant)
-        else:
-            db.collection('participants').add(participant)
 
-        # Save registration (event-wise, for analytics)
-        reg = {
+        # Create registration document (NO duplicate checking)
+        registration = {
+            **participant_data,
             'event_id': event_id,
-            'participant_email': participant.get('email', ''),
-            'participant_id': doc_id,
-            'timestamp': datetime.utcnow(),
-            'transaction_id': (data.get('transaction_id') or data.get('transactionId') or '').strip(),
+            'event_name': ev.get('name', ''),
+            'department': dept_name,
+            'transaction_id': tx,
+            'registration_date': datetime.utcnow(),
+            'status': 'confirmed'
         }
-        db.collection('registrations').add(reg)
 
-        return jsonify({'status': 'ok', 'saved': True})
+        # Generate a unique ID for the registration
+        reg_id = str(uuid.uuid4())
+        
+        # Save registration (allow multiple registrations with same email+event)
+        db.collection('registrations').document(reg_id).set(registration)
+
+        return jsonify({
+            'status': 'ok', 
+            'saved': True,
+            'registration_id': reg_id,
+            'message': 'Successfully registered for the event'
+        })
+        
     except Exception as e:
         return jsonify({'status': 'fail', 'error': str(e)}), 500
 
@@ -751,4 +702,3 @@ def api_register():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
-

@@ -4,6 +4,26 @@ let departments = [];
 let festivalInfo = {};
 let currentDepartment = 'all';
 
+// Detect iOS early for performance fallbacks in this script too
+const _ua = navigator.userAgent || navigator.vendor || window.opera || '';
+const isIOS_Script = (/iP(ad|hone|od)/.test(_ua) || (_ua.includes('Mac') && 'ontouchend' in document));
+
+// Pause heavy animations when page is hidden to avoid background CPU and memory pressure
+if (typeof document !== 'undefined' && typeof gsap !== 'undefined') {
+    document.addEventListener('visibilitychange', () => {
+        try {
+            if (document.hidden) {
+                // Pause all GSAP timelines/tweens
+                gsap.globalTimeline.pause();
+            } else {
+                gsap.globalTimeline.resume();
+            }
+        } catch (e) {
+            // ignore if gsap not ready
+        }
+    });
+}
+
 // TANTRA Text Animation - Automatically plays on load
 function initTantraAnimation() {
     const text = document.querySelector('.tantra-text');
@@ -58,11 +78,11 @@ function initMobileOptimizedTantraAnimation(text) {
 
     // 3. Optimized continuous animations
     .add(() => {
-        // Reduced breathing scale
+        // Reduced breathing scale (avoid infinite repeats on iOS)
         gsap.to(text, {
             scale: 1.04,
-            duration: 4, // Slower for better performance
-            repeat: -1,
+            duration: 4,
+            repeat: isIOS_Script ? 1 : -1,
             yoyo: true,
             ease: "sine.inOut"
         });
@@ -71,7 +91,7 @@ function initMobileOptimizedTantraAnimation(text) {
         gsap.to(text, {
             y: -8,
             duration: 5,
-            repeat: -1,
+            repeat: isIOS_Script ? 1 : -1,
             yoyo: true,
             ease: "sine.inOut"
         });
@@ -80,7 +100,7 @@ function initMobileOptimizedTantraAnimation(text) {
         gsap.to(text, {
             x: 5,
             duration: 6,
-            repeat: -1,
+            repeat: isIOS_Script ? 1 : -1,
             yoyo: true,
             ease: "sine.inOut"
         });
@@ -89,28 +109,28 @@ function initMobileOptimizedTantraAnimation(text) {
         gsap.to(text, {
             rotation: 1,
             duration: 10,
-            repeat: -1,
+            repeat: isIOS_Script ? 1 : -1,
             yoyo: true,
             ease: "sine.inOut"
         });
 
         // Optimized individual letter animations
-        letters.forEach((letter, index) => {
+    letters.forEach((letter, index) => {
             // Reduced rotation
             gsap.to(letter, {
-                rotation: Math.random() * 4 - 2, // Reduced range
-                duration: 4 + Math.random() * 3, // Slower
-                repeat: -1,
+                rotation: Math.random() * 4 - 2,
+                duration: 4 + Math.random() * 3,
+                repeat: isIOS_Script ? 1 : -1,
                 yoyo: true,
                 ease: "sine.inOut",
-                delay: index * 0.15 // Slower stagger
+                delay: index * 0.15
             });
 
             // Reduced scale
             gsap.to(letter, {
-                scale: 1.05, // Reduced scale
+                scale: 1.05,
                 duration: 3 + Math.random() * 2,
-                repeat: -1,
+                repeat: isIOS_Script ? 1 : -1,
                 yoyo: true,
                 ease: "sine.inOut",
                 delay: index * 0.2
@@ -971,8 +991,9 @@ function setupEventListeners() {
     // Event registration buttons
     document.addEventListener('click', (e) => {
         if (e.target.closest('.register-btn')) {
-            const eventId = e.target.closest('.register-btn').dataset.eventId;
-            openRegistrationModal(eventId);
+            const btn = e.target.closest('.register-btn');
+            const eventId = btn.dataset.eventId;
+            if (typeof openRegistrationModal === 'function') openRegistrationModal(eventId, btn);
         }
     });
     

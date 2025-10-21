@@ -58,6 +58,8 @@
                     <div class="form-group">
                         <label class="form-label" for="event-name">Selected Event</label>
                         <input type="text" id="event-name" class="form-input" readonly>
+                        <!-- Hidden event_id field so backend receives a reliable id (string) -->
+                        <input type="hidden" id="event-id" name="event_id" />
                     </div>
                     
                     <div class="form-row">

@@ -4,7 +4,7 @@ import json
 import os
 
 # Path to Firebase credentials and data.json
-CRED_PATH = os.path.join(os.path.dirname(__file__), 'techfestadmin-a2e2c-firebase-adminsdk-fbsvc-8fc9d6e2e5.json')
+CRED_PATH = os.path.join(os.path.dirname(__file__), 'fconfig.json')
 DATA_PATH = os.path.join(os.path.dirname(__file__), 'data', 'data.json')
 
 # Initialize Firebase
@@ -71,8 +71,18 @@ def verify_firestore():
     else:
         print('No data found at config/site_data in Firestore.')
 
+
+def setup_registrations_collection():
+    """Initialize the registrations collection with proper structure"""
+    # This ensures the registrations collection exists with the right structure
+    print("Setting up registrations collection structure...")
+    # No specific setup needed as Firestore is schema-less
+    print("Registrations collection ready for use.")
+
+
 if __name__ == '__main__':
     clear_firestore()
     upload_data()
+    setup_registrations_collection()
     print('Firestore reset and updated with data.json.')
     verify_firestore()

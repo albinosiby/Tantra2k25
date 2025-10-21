@@ -506,6 +506,8 @@ function createEventCard(event) {
 
     // IMPORTANT: Ensure event.id is properly handled
     const eventId = event.id;
+    // Also set data-event-id on the card root for robust lookup later
+    card.setAttribute('data-event-id', String(eventId));
 
     console.log('Creating event card for:', event.name, 'with ID:', eventId, 'Type:', typeof eventId);
 
@@ -536,7 +538,9 @@ function createEventCard(event) {
                                         <i class="fas fa-arrow-right"></i>
                                     </button>`
             : (event.status === 'spot')
-                ? `<span style="cursor:not-allowed; color: #aaa;"> Spot Registration </span>`
+                ? `<button class="register-btn" data-event-id="${eventId}" style="background:yellow;">
+                                        <span>Spot Register</span>
+                                    </button>`
                 : `<button class="register-btn" data-event-id="${eventId}" disabled style="background:#aaa;cursor:not-allowed;">
                                         <span>Registration Closed</span>
                                         <i class="fas fa-lock"></i>
@@ -787,7 +791,7 @@ function setupEventListeners() {
             console.log('Event ID from attribute:', eventId, 'Type:', typeof eventId);
 
             if (eventId && eventId !== 'undefined' && eventId !== 'null') {
-                openRegistrationModal(eventId);
+                openRegistrationModal(eventId, registerBtn);
             } else {
                 console.error('Event ID is undefined or invalid:', eventId);
 
@@ -799,7 +803,7 @@ function setupEventListeners() {
                         const event = events.find(e => e.name === eventName);
                         if (event) {
                             console.log('Found event by name, using ID:', event.id);
-                            openRegistrationModal(event.id);
+                            openRegistrationModal(event.id, registerBtn);
                             return;
                         }
                     }
@@ -808,7 +812,7 @@ function setupEventListeners() {
                 // Ultimate fallback: use first event
                 if (events.length > 0) {
                     console.log('Using first event as fallback');
-                    openRegistrationModal(events[0].id);
+                    openRegistrationModal(events[0].id, registerBtn);
                 } else {
                     alert('Event registration is currently unavailable. Please try again later.');
                 }
@@ -850,28 +854,41 @@ function setupEventListeners() {
 }
 
 // Enhanced openRegistrationModal with better error handling
-function openRegistrationModal(eventId) {
+function openRegistrationModal(eventId, sourceElement = null) {
     console.log('=== OPENING REGISTRATION MODAL ===');
     console.log('Event ID received:', eventId);
     console.log('Type of eventId:', typeof eventId);
+    // Robust ID handling: allow numeric or string IDs (don't rely solely on parseInt)
+    const eventIdRaw = (typeof eventId === 'string' || typeof eventId === 'number') ? String(eventId).trim() : null;
+    console.log('Normalized event id string:', eventIdRaw);
 
-    // Convert to number and find event
-    let numericId;
-    if (typeof eventId === 'string') {
-        numericId = parseInt(eventId);
-        console.log('Parsed string to number:', numericId);
-    } else if (typeof eventId === 'number') {
-        numericId = eventId;
-        console.log('Already a number:', numericId);
-    } else {
-        console.error('Invalid event ID type:', typeof eventId);
-        numericId = events[0]?.id || 1; // Use first event as fallback
+    // Try to find event by matching stringified ids (handles numeric IDs, UUIDs, and string ids)
+    let event = null;
+    if (eventIdRaw) {
+        event = events.find(e => String(e.id) === eventIdRaw);
     }
 
-    console.log('Final numeric ID:', numericId);
-    console.log('All available events:', events);
+    // If not found, attempt to resolve via source element's nearest card (data attribute or title)
+    if (!event && sourceElement) {
+        try {
+            const card = sourceElement.closest('.event-card');
+            if (card) {
+                const cardId = card.getAttribute('data-event-id');
+                if (cardId) {
+                    event = events.find(e => String(e.id) === String(cardId));
+                }
+                if (!event) {
+                    const title = card.querySelector('.event-title')?.textContent;
+                    if (title) event = events.find(e => e.name === title);
+                }
+            }
+        } catch (e) {
+            console.warn('Source element fallback failed', e);
+        }
+    }
 
-    const event = events.find(e => e.id === numericId);
+    console.log('All available events:', events);
+    console.log('Matched event by id:', event);
 
     console.log('Found event:', event);
     console.log('Modal element exists:', !!registrationModal);
@@ -879,6 +896,9 @@ function openRegistrationModal(eventId) {
 
     if (event && registrationModal && eventNameInput) {
         eventNameInput.value = event.name;
+        // Set hidden event id field
+        const hiddenEventId = document.getElementById('event-id');
+        if (hiddenEventId) hiddenEventId.value = String(event.id);
         // set QR code in modal based on event's department
         // Pass whether event is free so modal can hide/show payment fields
         updateModalQr(event.department, event.price === 0);
@@ -907,6 +927,8 @@ function openRegistrationModal(eventId) {
             if (fallbackEvent && registrationModal && eventNameInput) {
                 console.log('Using fallback event:', fallbackEvent.name);
                 eventNameInput.value = fallbackEvent.name;
+                    const hiddenEventId = document.getElementById('event-id');
+                    if (hiddenEventId) hiddenEventId.value = String(fallbackEvent.id);
                 // set QR code from fallback event's department
                 updateModalQr(fallbackEvent.department, fallbackEvent.price === 0);
                 registrationModal.style.display = 'flex';
@@ -920,7 +942,9 @@ function openRegistrationModal(eventId) {
                 if (registrationModal && eventNameInput) {
                     eventNameInput.value = "Technical Event";
                     // no department known for test event; clear/set default QR
-                    updateModalQr(null, true);
+                        updateModalQr(null, true);
+                        const hiddenEventId = document.getElementById('event-id');
+                        if (hiddenEventId) hiddenEventId.value = '';
                     registrationModal.style.display = 'flex';
                     document.body.style.overflow = 'hidden';
                     setTimeout(() => {
@@ -1019,6 +1043,9 @@ function closeRegistrationModal() {
         setTimeout(() => {
             registrationModal.style.display = 'none';
             document.body.style.overflow = 'auto';
+            // Clear hidden event id and form
+            const hiddenEventId = document.getElementById('event-id');
+            if (hiddenEventId) hiddenEventId.value = '';
         }, 300);
     }
 }
@@ -1055,7 +1082,7 @@ function handleRegistration(e) {
     }
     const formData = {
         event_name: selectedEvent.name || (eventNameInput ? eventNameInput.value : 'Unknown Event'),
-        event_id: selectedEvent.id || '',
+        event_id: document.getElementById('event-id')?.value || (selectedEvent.id || ''),
         name: document.getElementById('participant-name')?.value || '',
         email: document.getElementById('participant-email')?.value || '',
         phone: document.getElementById('participant-phone')?.value || '',
