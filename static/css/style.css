@@ -245,6 +245,11 @@ html.ios {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* Disable heavy animated background on iOS to reduce memory/CPU pressure */
+html.ios .animated-bg {
+    display: none !important;
+}
+
 html.ios .initial-animation,
 html.ios .initial-video,
 html.ios .skip-button,

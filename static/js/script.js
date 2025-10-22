@@ -756,9 +756,21 @@ function initCountdownTimer() {
         }
     }
     
-    // Update immediately and then every second
+    // Update immediately and then every second (store interval so we can pause on visibilitychange)
     updateCountdown();
-    setInterval(updateCountdown, 1000);
+    let countdownInterval = setInterval(updateCountdown, 1000);
+
+    // Pause countdown while page is hidden to reduce background CPU on iOS
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+        } else {
+            if (!countdownInterval) countdownInterval = setInterval(updateCountdown, 1000);
+            // run an immediate update when becoming visible again
+            updateCountdown();
+        }
+    });
 }
 // Render department tabs for events page
 function renderDepartmentTabs() {
