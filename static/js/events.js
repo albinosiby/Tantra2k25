@@ -1110,7 +1110,7 @@ function handleRegistration(e) {
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'ok' && data.saved) {
-                    showNotification('Registration successful! Check your email for confirmation.', 'success');
+                    showNotification('Registration successful!', 'success');
                     if (registrationForm) registrationForm.reset();
                     closeRegistrationModal();
                 } else {

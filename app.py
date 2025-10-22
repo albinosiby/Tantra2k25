@@ -137,7 +137,7 @@ def index():
     total_events = len(events)
 
     # Count registrations (not participants)
-    registrations = list(db.collection('registrations').stream())
+    registrations = list(db.collection('regists').stream())
     total_registrations = len(registrations)
     
     # Count unique participants (by email)
@@ -416,8 +416,8 @@ def view_participants():
     
     participants_info = []
 
-    # Build query for registrations
-    reg_query = db.collection('registrations')
+    # Build query for registrations (collection renamed to 'regists')
+    reg_query = db.collection('regists')
     
     if selected_dept_id:
         # Get department name from ID
@@ -499,8 +499,8 @@ def export_participants():
         else:
             event_name = event_id
 
-    # Query registrations collection instead of participants
-    q = db.collection('registrations')
+    # Query registrations collection instead of participants (collection 'regists')
+    q = db.collection('regists')
     if dept_name:
         q = q.where('department', '==', dept_name)
     if event_id:
@@ -686,7 +686,7 @@ def api_register():
         reg_id = str(uuid.uuid4())
         
         # Save registration (allow multiple registrations with same email+event)
-        db.collection('registrations').document(reg_id).set(registration)
+        db.collection('regists').document(reg_id).set(registration)
 
         return jsonify({
             'status': 'ok', 
