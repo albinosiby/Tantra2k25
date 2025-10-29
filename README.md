@@ -26,28 +26,6 @@ markdown
 - 📱 **API Ready** - RESTful endpoints for dynamic content
 - 🚀 **Production Ready** - Deployed and live on Render
 
-## 🏗️ Project Structure
-Tantra2k25/
-├── app.py # Flask development server
-├── entrypoint.py # Production entry point
-├── start.py # Optional startup helpers
-├── data_provider.py # Centralized data management
-├── config.py # App configuration
-├── templates/ # Jinja2 templates
-│ ├── index.html
-│ ├── events.html
-│ └── [other templates]
-├── static/ # Static assets
-│ ├── css/
-│ ├── js/
-│ ├── images/
-│ └── fonts/
-├── requirements.txt # Python dependencies
-├── Procfile # Render deployment config
-├── runtime.txt # Python version specification
-└── README.md
-
-text
 
 ## 🚀 Quick Start
 
@@ -170,4 +148,4 @@ Built with ❤️ for Vimal Jyothi Engineering College
 
 Part of the Tantra 2k25 TechFest celebration
 
-</div> ```
+</div> 
