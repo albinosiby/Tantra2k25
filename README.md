@@ -1,7 +1,4 @@
-Tantra 2k25 — TechFest Website (Flask)
-I'll create a beautifully designed README.md file for your TechFest website that showcases your project professionally.
 
-markdown
 # 🚀 Tantra 2k25 — TechFest Website
 
 <div align="center">
