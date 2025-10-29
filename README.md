@@ -170,7 +170,4 @@ Built with ❤️ for Vimal Jyothi Engineering College
 
 Part of the Tantra 2k25 TechFest celebration
 
-https://img.shields.io/badge/VJEC-Tantra%25202k25-red?style=for-the-badge
-https://img.shields.io/badge/Made%2520with-Flask-lightgrey?style=for-the-badge
-
 </div> ```
