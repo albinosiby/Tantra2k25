@@ -28,22 +28,24 @@ markdown
 
 ## 🏗️ Project Structure
 Tantra2k25/
-├── 🐍 app.py # Flask development server
-├── 🚀 entrypoint.py # Production entry point
-├── 📊 data_provider.py # Centralized data management
-├── 📁 templates/ # Jinja2 templates
+├── app.py # Flask development server
+├── entrypoint.py # Production entry point
+├── start.py # Optional startup helpers
+├── data_provider.py # Centralized data management
+├── config.py # App configuration
+├── templates/ # Jinja2 templates
 │ ├── index.html
 │ ├── events.html
-│ └── ...
-├── 🎨 static/
+│ └── [other templates]
+├── static/ # Static assets
 │ ├── css/
 │ ├── js/
 │ ├── images/
 │ └── fonts/
-├── 📋 requirements.txt # Python dependencies
-├── ⚙️ Procfile # Render deployment config
-├── 🔧 runtime.txt # Python version specification
-└── 📖 README.md
+├── requirements.txt # Python dependencies
+├── Procfile # Render deployment config
+├── runtime.txt # Python version specification
+└── README.md
 
 text
 
@@ -75,7 +77,7 @@ python app.py
 Open your browser
 Navigate to http://127.0.0.1:5000/
 
-🔧 Configuration
+# 🔧 Configuration
 Environment Variables
 For Firebase integration (optional), set one of these:
 
@@ -90,11 +92,11 @@ JSON with escaped newlines
 
 Base64-encoded JSON
 
-📡 API Endpoints
+## 📡 API Endpoints
 Endpoint	Method	Description
 /api/data	GET	Returns structured site data
 /api/register	POST	Registration endpoint (stub)
-🚀 Deployment
+## 🚀 Deployment
 Production on Render
 The app is live at https://techfest.vjec.in
 
@@ -112,7 +114,7 @@ Local Production Testing
 powershell
 pip install gunicorn
 gunicorn entrypoint:app --bind 0.0.0.0:5000
-🛠️ Development
+## 🛠️ Development
 Key Components
 app.py - Main Flask application with routes
 
@@ -131,13 +133,13 @@ Static Assets: Place in static/ with organized subdirectories
 
 Data: Update data_provider.py for new structured content
 
-🐛 Troubleshooting
+## 🐛 Troubleshooting
 Issue	Solution
 Static assets 404	Check paths in static/ directory
 Firebase errors	Verify credentials format and environment variables
 Render deployment fails	Ensure binding to 0.0.0.0:$PORT
 Import errors	Verify virtual environment activation
-🤝 Contributing
+## 🤝 Contributing
 We welcome contributions! Please:
 
 Fork the repository
@@ -150,7 +152,7 @@ Push to the branch (git push origin feature/amazing-feature)
 
 Open a Pull Request
 
-👨‍💻 Developer
+## 👨‍💻 Developer
 Albino Siby
 Web/Mobile App Developer
 
@@ -160,7 +162,7 @@ Web/Mobile App Developer
 
 🐙 GitHub: albinosiby
 
-📄 License
+## 📄 License
 This project is developed for Vimal Jyothi Engineering College. All rights reserved.
 
 <div align="center">
